@@ -1,3 +1,4 @@
+sleep 360
 git clone https://github.com/ajevnisek/mmsegmentation.git
 cd /mmsegmentation
 
