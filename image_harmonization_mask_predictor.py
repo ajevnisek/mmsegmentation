@@ -228,7 +228,7 @@ img = mmcv.imread(os.path.join(cfg.data.test.data_root, cfg.data.test.img_dir,
 annotation_name = '_'.join(example_image[IMAGE_HARMONIZATION_DATASET].split(
     "_")[:2]) + '.png'
 import shutil
-os.makedirs(os.path.join(os.path.join(cfg.work_dir, 'test')))
+os.makedirs(os.path.join(os.path.join(cfg.work_dir, 'test')), exist_ok=True)
 shutil.copy(os.path.join(cfg.data.test.data_root, cfg.data.test.ann_dir,
                          annotation_name ),
             os.path.join(
