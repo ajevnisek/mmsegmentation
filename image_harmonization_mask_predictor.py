@@ -235,10 +235,18 @@ shutil.copy(os.path.join(cfg.data.test.data_root, cfg.data.test.ann_dir,
                 cfg.work_dir, 'test', 'annotation_ground_truth.png'))
 model.cfg = cfg
 result = inference_segmentor(model, img)
+plt.clf()
+plt.imshow(result)
+plt.savefig(os.path.join(
+                       cfg.work_dir, 'test',
+                       f"prediction"
+                       f"_{example_image[IMAGE_HARMONIZATION_DATASET]}"))
+plt.clf()
 plt.figure(figsize=(8, 6))
 palette = [[128, 128, 128], [255,20,147],]
 show_result_pyplot(model, img, result, palette,
                    title='',
                    path=os.path.join(
                        cfg.work_dir, 'test',
-                       f"prediction_{example_image[IMAGE_HARMONIZATION_DATASET]}"))
+                       f"overlaid_prediction"
+                       f"_{example_image[IMAGE_HARMONIZATION_DATASET]}"))
