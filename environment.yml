@@ -131,3 +131,4 @@ dependencies:
     - tqdm==4.64.1
     - yapf==0.32.0
     - zipp==3.10.0
+prefix: /home/uriel/anaconda3/envs/openmmlab

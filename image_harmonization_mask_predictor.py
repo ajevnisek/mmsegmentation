@@ -236,7 +236,7 @@ shutil.copy(os.path.join(cfg.data.test.data_root, cfg.data.test.ann_dir,
 model.cfg = cfg
 result = inference_segmentor(model, img)
 plt.clf()
-plt.imshow(result)
+plt.imshow(result[0])
 plt.savefig(os.path.join(
                        cfg.work_dir, 'test',
                        f"prediction"
