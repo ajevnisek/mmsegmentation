@@ -1,3 +1,4 @@
+import os
 import mmseg
 import torch, torchvision
 
@@ -21,6 +22,9 @@ parser.add_argument("--dataset", default="HCOCO", choices=['HCOCO',
                                                            'HAdobe5k',
                                                            'HFlickr',
                                                            'Hday2night'])
+parser.add_argument('--is-cluster', default=False, action='store_true',
+                    help="running on TAU cluster or on personal GPU.")
+
 DATASETS_TRAIN_SIZE = {'HCOCO': 38545,
                        'HAdobe5k': 19437,
                        'HFlickr': 7449,
@@ -73,8 +77,13 @@ class ImageHarmonizationMasksDataset(CustomDataset):
         print_log(f'Loaded {len(img_infos)} images', logger=get_root_logger())
         return img_infos
 
+if args.is_cluster:
+    data_root = os.path.join('/storage/jevnisek/ImageHarmonizationDataset/',
+                             IMAGE_HARMONIZATION_DATASET)
+else:
+    data_root = os.path.join(f'../data/Image_Harmonization_Dataset/',
+                             IMAGE_HARMONIZATION_DATASET)
 
-data_root = f'../data/Image_Harmonization_Dataset/{IMAGE_HARMONIZATION_DATASET}'
 img_dir = 'composite_images'
 ann_dir = 'masks'
 from mmcv import Config
@@ -154,15 +163,27 @@ cfg.data.test.split = f'{IMAGE_HARMONIZATION_DATASET}_test.txt'
 
 # We can still use the pre-trained Mask RCNN model though we do not need to
 # use the mask branch
-cfg.load_from = 'checkpoints/pspnet_r50-d8_512x512_160k_ade20k_20200615_184358-1890b0bd.pth'
+if args.is_cluster:
+    cfg.load_from = os.path.join(
+        '/storage/jevnisek/mmsegmentation_checkpoints/',
+        'pspnet_r50-d8_512x512_160k_ade20k_20200615_184358-1890b0bd.pth')
+else:
+    cfg.load_from = 'checkpoints/pspnet_r50-d8_512x512_160k_ade20k_20200615_184358-1890b0bd.pth'
 
 # Set up working dir to save files and logs.
-cfg.work_dir = f'./work_dirs/{IMAGE_HARMONIZATION_DATASET}'
+if args.is_cluster:
+    cfg.work_dir = os.path.join(
+        '/storage/jevnisek/ImageHarmonizationResults/', 'work_dir',
+        IMAGE_HARMONIZATION_DATASET)
+    os.makedirs(cfg.work_dir, exist_ok=True)
+else:
+    cfg.work_dir = f'./work_dirs/{IMAGE_HARMONIZATION_DATASET}'
 
 # cfg.runner.max_iters = min(
 #     10000, 15 * DATASETS_TRAIN_SIZE[IMAGE_HARMONIZATION_DATASET])
 cfg.runner.max_iters = 40
 cfg.log_config.interval = 10
+# cfg.evaluation.interval = 200
 cfg.evaluation.interval = 20
 cfg.checkpoint_config.interval = 200
 cfg.evaluation.is_image_harmonization_dataset = True
@@ -186,8 +207,6 @@ from mmseg.apis import train_segmentor
 datasets = [build_dataset(cfg.data.train)]
 sample = datasets[0][0]
 
-
-
 # Build the detector
 model = build_segmentor(cfg.model)
 # Add an attribute for visualization convenience
@@ -197,14 +216,29 @@ model.CLASSES = datasets[0].CLASSES
 mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
 train_segmentor(model, datasets, cfg, distributed=False, validate=True,
                 meta=dict())
-from mmseg.apis.test import single_gpu_test
-from torch.utils.data import DataLoader
-single_gpu_test(model=model,
-                data_loader=DataLoader(build_dataset(cfg.data.test), batch_size=8),
-                show=True,
-                out_dir=osp.join(cfg.work_dir, 'test'),
-                efficient_test=False,
-                opacity=0.5,
-                pre_eval=False,
-                format_only=False,
-                format_args={})
+
+from mmseg.apis import inference_segmentor
+example_image = {
+    'HCOCO': 'c21070_1396052_1.jpg',
+    'HAdobe5k': 'a3456_1_3.jpg',
+    'HFlickr''': 'f5102_1_2.jpg',
+    'Hday2night': 'd90000014-10_1_2.jpg'}
+img = mmcv.imread(os.path.join(cfg.data.test.data_root, cfg.data.test.img_dir,
+                               example_image[IMAGE_HARMONIZATION_DATASET]))
+annotation_name = '_'.join(example_image[IMAGE_HARMONIZATION_DATASET].split(
+    "_")[:2]) + '.png'
+import shutil
+os.makedirs(os.path.join(os.path.join(cfg.work_dir, 'test')))
+shutil.copy(os.path.join(cfg.data.test.data_root, cfg.data.test.ann_dir,
+                         annotation_name ),
+            os.path.join(
+                cfg.work_dir, 'test', 'annotation_ground_truth.png'))
+model.cfg = cfg
+result = inference_segmentor(model, img)
+plt.figure(figsize=(8, 6))
+palette = [[128, 128, 128], [255,20,147],]
+show_result_pyplot(model, img, result, palette,
+                   title='',
+                   path=os.path.join(
+                       cfg.work_dir, 'test',
+                       f"prediction_{example_image[IMAGE_HARMONIZATION_DATASET]}"))

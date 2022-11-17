@@ -111,7 +111,7 @@ def show_result_pyplot(model,
                        opacity=0.5,
                        title='',
                        block=True,
-                       out_file=None):
+                       out_file=None, path=''):
     """Visualize the segmentation results on the image.
 
     Args:
@@ -140,6 +140,9 @@ def show_result_pyplot(model,
     plt.imshow(mmcv.bgr2rgb(img))
     plt.title(title)
     plt.tight_layout()
-    plt.show(block=block)
+    if path == '':
+        plt.show(block=block)
+    else:
+        plt.savefig(path)
     if out_file is not None:
         mmcv.imwrite(img, out_file)

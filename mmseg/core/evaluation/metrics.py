@@ -69,11 +69,10 @@ def intersect_and_union(pred_label,
         label = torch.from_numpy(
             mmcv.imread(label, flag=flag, backend='pillow'))
     else:
-        label = torch.from_numpy(label)
-        # if is_image_harmonization_dataset:
-        #     label = torch.from_numpy(rgb2gray(label))
-        # else:
-        #     label = torch.from_numpy(label)
+        if len(label.shape) == 3:
+            label = torch.from_numpy(rgb2gray(label))
+        else:
+            label = torch.from_numpy(label)
 
 
     if label_map is not None:
