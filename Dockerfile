@@ -31,6 +31,8 @@ ENV FORCE_CUDA="1"
 RUN pip install -r requirements.txt
 RUN pip install --no-cache-dir -e .
 
+RUN pip install openmim && mim install mmcv-full==1.6.0
+
 WORKDIR /
 ## clone repo and cd to a directory where the main is:
 COPY clone_repo_and_run_python_scripts.sh .
