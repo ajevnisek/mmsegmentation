@@ -104,7 +104,10 @@ cfg.model.auxiliary_head.num_classes = 2
 cfg.dataset_type = 'ImageHarmonizationMasksDataset'
 cfg.data_root = data_root
 
-cfg.data.samples_per_gpu = 2
+if args.is_cluster:
+    cfg.data.samples_per_gpu = 8
+else:
+    cfg.data.samples_per_gpu = 2
 cfg.data.workers_per_gpu=8
 
 cfg.img_norm_cfg = dict(

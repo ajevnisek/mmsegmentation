@@ -125,9 +125,8 @@ dependencies:
     - tabulate==0.9.0
     - tifffile==2022.10.10
     - toml==0.10.2
-    - torch==1.12.0+cu113
-    - torchaudio==0.13.0+cu117
-    - torchvision==0.13.0+cu113
+    - torch==1.12.0
+    - torchvision
     - tqdm==4.64.1
     - yapf==0.32.0
     - zipp==3.10.0

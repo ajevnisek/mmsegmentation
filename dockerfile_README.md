@@ -34,4 +34,7 @@ docker system prune -a
 # Run this image with run:ai:
 ```bash
 runai submit --rm -g 1 -e DATASET=HCOCO --name mmsegmentation-HCOCO -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction --pvc=storage:/storage
+runai submit --rm -g 1 -e DATASET=HAdobe5k --name mmsegmentation-HAdobe5k -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction --pvc=storage:/storage
+runai submit --rm -g 1 -e DATASET=HFlickr --name mmsegmentation-HFlickr -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction --pvc=storage:/storage
+runai submit --rm -g 1 -e DATASET=Hday2night --name mmsegmentation-Hday2night -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction --pvc=storage:/storage
 ```

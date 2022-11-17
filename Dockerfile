@@ -1,8 +1,7 @@
 FROM ajevnisek/tau-base-docker:latest
 
 COPY environment.yml .
-RUN conda update -y conda && \
-    conda env update --file environment.yml --name base
+RUN conda env update --file environment.yml --name base
 
 WORKDIR /storage/jevnisek
 
