@@ -105,11 +105,16 @@ class LoadAnnotations(object):
     def __init__(self,
                  reduce_zero_label=False,
                  file_client_args=dict(backend='disk'),
-                 imdecode_backend='pillow'):
+                 imdecode_backend='pillow',
+                 image_coversion_flag='unchanged',
+                 is_image_harmonization_dataset=False):
         self.reduce_zero_label = reduce_zero_label
         self.file_client_args = file_client_args.copy()
         self.file_client = None
         self.imdecode_backend = imdecode_backend
+        # for image harmonization dataset we change this flag to 'grayscale'
+        self.image_coversion_flag = image_coversion_flag
+        self.is_image_harmonization_dataset = is_image_harmonization_dataset
 
     def __call__(self, results):
         """Call function to load multiple types annotations.
@@ -131,7 +136,7 @@ class LoadAnnotations(object):
             filename = results['ann_info']['seg_map']
         img_bytes = self.file_client.get(filename)
         gt_semantic_seg = mmcv.imfrombytes(
-            img_bytes, flag='unchanged',
+            img_bytes, flag=self.image_coversion_flag,
             backend=self.imdecode_backend).squeeze().astype(np.uint8)
         # modify if custom classes
         if results.get('label_map', None) is not None:
@@ -141,12 +146,15 @@ class LoadAnnotations(object):
             gt_semantic_seg_copy = gt_semantic_seg.copy()
             for old_id, new_id in results['label_map'].items():
                 gt_semantic_seg[gt_semantic_seg_copy == old_id] = new_id
+        if self.is_image_harmonization_dataset:
+            gt_semantic_seg[gt_semantic_seg > 0] = 1
         # reduce zero_label
-        if self.reduce_zero_label:
+        if not self.is_image_harmonization_dataset and self.reduce_zero_label:
             # avoid using underflow conversion
             gt_semantic_seg[gt_semantic_seg == 0] = 255
             gt_semantic_seg = gt_semantic_seg - 1
             gt_semantic_seg[gt_semantic_seg == 254] = 255
+
         results['gt_semantic_seg'] = gt_semantic_seg
         results['seg_fields'].append('gt_semantic_seg')
         return results

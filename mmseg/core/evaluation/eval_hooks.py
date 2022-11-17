@@ -30,9 +30,11 @@ class EvalHook(_EvalHook):
                  by_epoch=False,
                  efficient_test=False,
                  pre_eval=False,
+                 is_image_harmonization_dataset=False,
                  **kwargs):
         super().__init__(*args, by_epoch=by_epoch, **kwargs)
         self.pre_eval = pre_eval
+        self.is_image_harmonization_dataset = is_image_harmonization_dataset
         self.latest_results = None
 
         if efficient_test:
@@ -49,7 +51,9 @@ class EvalHook(_EvalHook):
 
         from mmseg.apis import single_gpu_test
         results = single_gpu_test(
-            runner.model, self.dataloader, show=False, pre_eval=self.pre_eval)
+            runner.model, self.dataloader, show=False,
+            pre_eval=self.pre_eval,
+            is_image_harmonization_dataset=self.is_image_harmonization_dataset)
         self.latest_results = results
         runner.log_buffer.clear()
         runner.log_buffer.output['eval_iter_num'] = len(self.dataloader)

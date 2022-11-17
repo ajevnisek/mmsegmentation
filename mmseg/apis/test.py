@@ -38,6 +38,7 @@ def single_gpu_test(model,
                     efficient_test=False,
                     opacity=0.5,
                     pre_eval=False,
+                    is_image_harmonization_dataset=False,
                     format_only=False,
                     format_args={}):
     """Test with single GPU by progressive mode.
@@ -125,7 +126,8 @@ def single_gpu_test(model,
         if pre_eval:
             # TODO: adapt samples_per_gpu > 1.
             # only samples_per_gpu=1 valid now
-            result = dataset.pre_eval(result, indices=batch_indices)
+            result = dataset.pre_eval(result, indices=batch_indices,
+                                      is_image_harmonization_dataset=is_image_harmonization_dataset)
             results.extend(result)
         else:
             results.extend(result)

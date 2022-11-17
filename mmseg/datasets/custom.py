@@ -274,7 +274,7 @@ class CustomDataset(Dataset):
             self.gt_seg_map_loader(results)
             yield results['gt_semantic_seg']
 
-    def pre_eval(self, preds, indices):
+    def pre_eval(self, preds, indices, is_image_harmonization_dataset):
         """Collect eval result from each iteration.
 
         Args:
@@ -309,7 +309,8 @@ class CustomDataset(Dataset):
                     # https://github.com/open-mmlab/mmsegmentation/issues/1415
                     # for more ditails
                     label_map=dict(),
-                    reduce_zero_label=self.reduce_zero_label))
+                    reduce_zero_label=self.reduce_zero_label,
+                is_image_harmonization_dataset=is_image_harmonization_dataset))
 
         return pre_eval_results
 

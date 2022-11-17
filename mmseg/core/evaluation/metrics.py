@@ -23,12 +23,17 @@ def f_score(precision, recall, beta=1):
     return score
 
 
+def rgb2gray(rgb):
+    return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
+
+
 def intersect_and_union(pred_label,
                         label,
                         num_classes,
                         ignore_index,
                         label_map=dict(),
-                        reduce_zero_label=False):
+                        reduce_zero_label=False,
+                        is_image_harmonization_dataset=False):
     """Calculate intersection and Union.
 
     Args:
@@ -51,26 +56,36 @@ def intersect_and_union(pred_label,
          torch.Tensor: The prediction histogram on all classes.
          torch.Tensor: The ground truth histogram on all classes.
     """
-
     if isinstance(pred_label, str):
         pred_label = torch.from_numpy(np.load(pred_label))
     else:
         pred_label = torch.from_numpy((pred_label))
 
     if isinstance(label, str):
+        if is_image_harmonization_dataset:
+            flag = 'grayscale'
+        else:
+            flag = 'unchanged'
         label = torch.from_numpy(
-            mmcv.imread(label, flag='unchanged', backend='pillow'))
+            mmcv.imread(label, flag=flag, backend='pillow'))
     else:
         label = torch.from_numpy(label)
+        # if is_image_harmonization_dataset:
+        #     label = torch.from_numpy(rgb2gray(label))
+        # else:
+        #     label = torch.from_numpy(label)
+
 
     if label_map is not None:
         label_copy = label.clone()
         for old_id, new_id in label_map.items():
             label[label_copy == old_id] = new_id
-    if reduce_zero_label:
+    if reduce_zero_label and not is_image_harmonization_dataset:
         label[label == 0] = 255
         label = label - 1
         label[label == 254] = 255
+    if is_image_harmonization_dataset:
+        label[label > 0] = 1
 
     mask = (label != ignore_index)
     pred_label = pred_label[mask]
