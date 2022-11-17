@@ -39,3 +39,10 @@ runai submit -g 1 -e DATASET=HFlickr --name mmsegmentation-hflickr -i ajevnisek/
 runai submit -g 1 -e DATASET=Hday2night --name mmsegmentation-hday2night -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction:v3 --pvc=storage:/storage --large-shm
 
 ```
+# Show the logs and telemetries:
+```bash
+runai logs mmsegmentation-hcoco -f
+runai logs mmsegmentation-hadobe5k -f
+runai logs mmsegmentation-hflickr -f
+runai logs mmsegmentation-hday2night -f
+```
