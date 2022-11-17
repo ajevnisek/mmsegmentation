@@ -179,12 +179,12 @@ if args.is_cluster:
 else:
     cfg.work_dir = f'./work_dirs/{IMAGE_HARMONIZATION_DATASET}'
 
-# cfg.runner.max_iters = min(
-#     10000, 15 * DATASETS_TRAIN_SIZE[IMAGE_HARMONIZATION_DATASET])
-cfg.runner.max_iters = 40
+cfg.runner.max_iters = min(
+    10000, 15 * DATASETS_TRAIN_SIZE[IMAGE_HARMONIZATION_DATASET])
+# cfg.runner.max_iters = 40
 cfg.log_config.interval = 10
-# cfg.evaluation.interval = 200
-cfg.evaluation.interval = 20
+cfg.evaluation.interval = 200
+# cfg.evaluation.interval = 20
 cfg.checkpoint_config.interval = 200
 cfg.evaluation.is_image_harmonization_dataset = True
 
@@ -232,7 +232,7 @@ os.makedirs(os.path.join(os.path.join(cfg.work_dir, 'test')), exist_ok=True)
 shutil.copy(os.path.join(cfg.data.test.data_root, cfg.data.test.ann_dir,
                          annotation_name ),
             os.path.join(
-                cfg.work_dir, 'test', 'annotation_ground_truth.png'))
+                cfg.work_dir, 'test', f'ground_truth_{annotation_name}'))
 model.cfg = cfg
 result = inference_segmentor(model, img)
 plt.clf()
