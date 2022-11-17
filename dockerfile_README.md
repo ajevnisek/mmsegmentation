@@ -33,8 +33,9 @@ docker system prune -a
 
 # Run this image with run:ai:
 ```bash
-runai submit -g 1 -e DATASET=HCOCO --name mmsegmentation-hcoco -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction --pvc=storage:/storage
-runai submit -g 1 -e DATASET=HAdobe5k --name mmsegmentation-hadobe5k -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction --pvc=storage:/storage
-runai submit -g 1 -e DATASET=HFlickr --name mmsegmentation-hflickr -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction --pvc=storage:/storage
-runai submit -g 1 -e DATASET=Hday2night --name mmsegmentation-day2night -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction --pvc=storage:/storage
+runai submit -g 1 -e DATASET=HCOCO --name mmsegmentation-hcoco -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction:v3 --pvc=storage:/storage --large-shm
+runai submit -g 1 -e DATASET=HAdobe5k --name mmsegmentation-hadobe5k -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction:v3 --pvc=storage:/storage --large-shm
+runai submit -g 1 -e DATASET=HFlickr --name mmsegmentation-hflickr -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction:v3 --pvc=storage:/storage --large-shm
+runai submit -g 1 -e DATASET=Hday2night --name mmsegmentation-hday2night -i ajevnisek/mmsegmentation-for-image-harmonization-mask-prediction:v3 --pvc=storage:/storage --large-shm
+
 ```
