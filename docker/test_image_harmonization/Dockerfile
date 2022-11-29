@@ -35,5 +35,5 @@ RUN pip install openmim && mim install mmcv-full==1.6.0
 
 WORKDIR /
 ## clone repo and cd to a directory where the main is:
-COPY docker/train_image_harmonization/clone_repo_and_run_python_scripts.sh .
+COPY clone_repo_and_run_python_scripts.sh .
 ENTRYPOINT ["bash", "clone_repo_and_run_python_scripts.sh"]

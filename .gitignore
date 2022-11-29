@@ -121,3 +121,5 @@ mmseg/.mim
 
 # stanford background dataset
 iccv09Data/
+checkpoints/
+mask_detection_results/

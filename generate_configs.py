@@ -1,16 +1,8 @@
 import os
 import mmseg
-import torch, torchvision
 
-from mmseg.apis import inference_segmentor, init_segmentor, show_result_pyplot
-from mmseg.core.evaluation import get_palette
 # Let's take a look at the dataset
 import mmcv
-import matplotlib.pyplot as plt
-import os.path as osp
-import numpy as np
-from PIL import Image
-import matplotlib.patches as mpatches
 from mmseg.datasets.builder import DATASETS
 from mmseg.datasets.custom import CustomDataset
 from mmcv.utils import print_log
@@ -31,7 +23,6 @@ DATASETS_TRAIN_SIZE = {'HCOCO': 38545,
                        'Hday2night': 311}
 args = parser.parse_args()
 IMAGE_HARMONIZATION_DATASET = args.dataset
-
 
 
 @DATASETS.register_module()
@@ -199,57 +190,13 @@ cfg.device = get_device()
 
 # Let's have a look at the final config used for training
 print(f'Config:\n{cfg.pretty_text}')
-cfg.dump(os.path.join('configs', f'{IMAGE_HARMONIZATION_DATASET}_personalGPU.py'))
-
-from mmseg.datasets import build_dataset
-from mmseg.models import build_segmentor
-from mmseg.apis import train_segmentor
-
-
-# Build the dataset
-datasets = [build_dataset(cfg.data.train)]
-sample = datasets[0][0]
-
-# Build the detector
-model = build_segmentor(cfg.model)
-# Add an attribute for visualization convenience
-model.CLASSES = datasets[0].CLASSES
-
-# Create work_dir
-mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
-train_segmentor(model, datasets, cfg, distributed=False, validate=True,
-                meta=dict())
-
-from mmseg.apis import inference_segmentor
-example_image = {
-    'HCOCO': 'c21070_1396052_1.jpg',
-    'HAdobe5k': 'a3456_1_3.jpg',
-    'HFlickr''': 'f5102_1_2.jpg',
-    'Hday2night': 'd90000014-10_1_2.jpg'}
-img = mmcv.imread(os.path.join(cfg.data.test.data_root, cfg.data.test.img_dir,
-                               example_image[IMAGE_HARMONIZATION_DATASET]))
-annotation_name = '_'.join(example_image[IMAGE_HARMONIZATION_DATASET].split(
-    "_")[:2]) + '.png'
-import shutil
-os.makedirs(os.path.join(os.path.join(cfg.work_dir, 'test')), exist_ok=True)
-shutil.copy(os.path.join(cfg.data.test.data_root, cfg.data.test.ann_dir,
-                         annotation_name ),
-            os.path.join(
-                cfg.work_dir, 'test', f'ground_truth_{annotation_name}'))
-model.cfg = cfg
-result = inference_segmentor(model, img)
-plt.clf()
-plt.imshow(result[0])
-plt.savefig(os.path.join(
-                       cfg.work_dir, 'test',
-                       f"prediction"
-                       f"_{example_image[IMAGE_HARMONIZATION_DATASET]}"))
-plt.clf()
-plt.figure(figsize=(8, 6))
-palette = [[128, 128, 128], [255,20,147],]
-show_result_pyplot(model, img, result, palette,
-                   title='',
-                   path=os.path.join(
-                       cfg.work_dir, 'test',
-                       f"overlaid_prediction"
-                       f"_{example_image[IMAGE_HARMONIZATION_DATASET]}"))
+if args.is_cluster:
+    cfg.dump(os.path.join('configs',
+                          f'{IMAGE_HARMONIZATION_DATASET}_cluster.py'))
+    root = '/storage/jevnisek/ImageHarmonizationResults/configs'
+    os.makedirs(root, exist_ok=True)
+    cfg.dump(os.path.join(root,
+                          f'{IMAGE_HARMONIZATION_DATASET}_cluster.py'))
+else:
+    cfg.dump(os.path.join('configs',
+                          f'{IMAGE_HARMONIZATION_DATASET}_personalGPU.py'))
