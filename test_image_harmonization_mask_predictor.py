@@ -5,7 +5,9 @@ import argparse
 from tqdm import tqdm
 from PIL import Image
 
+import mmcv
 import torch
+import numpy as np
 from torchvision.transforms import ToTensor
 
 from mmseg.apis import init_segmentor, inference_segmentor, show_result_pyplot
@@ -14,6 +16,7 @@ from mmseg.core.evaluation import get_palette
 
 CLASSES = ('original', 'augmented')
 PALETTE = [[128, 128, 128], [255,20,147],]
+GT_PALETTE = [[128, 128, 128], [144,238,144],]
 
 
 def convert_composite_image_name_to_mask_name(composite_image_name,
@@ -23,6 +26,28 @@ def convert_composite_image_name_to_mask_name(composite_image_name,
     return seg_map
 
 
+def convert_composite_image_name_to_real_image_name(composite_image_name,
+                                              real_image_suffix='.jpg'):
+    real_image_filename_without_suffix = composite_image_name.split("_")[0]
+    real_image = real_image_filename_without_suffix + real_image_suffix
+    return real_image
+
+
+
+def get_concat_h(im1, im2):
+    dst = Image.new('RGB', (im1.width + im2.width, im1.height))
+    dst.paste(im1, (0, 0))
+    dst.paste(im2, (im1.width, 0))
+    return dst
+
+
+def get_concat_v_cut(im1, im2):
+    dst = Image.new('RGB', (min(im1.width, im2.width), im1.height + im2.height))
+    dst.paste(im1, (0, 0))
+    dst.paste(im2, (0, im1.height))
+    return dst
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", default="HCOCO", choices=['HCOCO',
                                                            'HAdobe5k',
@@ -30,6 +55,9 @@ parser.add_argument("--dataset", default="HCOCO", choices=['HCOCO',
                                                            'Hday2night'])
 parser.add_argument('--is-cluster', default=False, action='store_true',
                     help="running on TAU cluster or on personal GPU.")
+parser.add_argument('--all-test-images', default=False, action='store_true',
+                    help='if set, then all images in the test set will be '
+                         'tested. Otherwise only 100 images.')
 
 args = parser.parse_args()
 
@@ -56,34 +84,62 @@ test_split = os.path.join(data_root, f'{IMAGE_HARMONIZATION_DATASET}_test.txt')
 with open(test_split, 'r') as f:
     test_images = f.read().splitlines()
 
+# if is_cluster:
 if args.is_cluster:
     config_file = os.path.join('configs',
                                f'{IMAGE_HARMONIZATION_DATASET}_cluster.py')
 else:
     config_file = os.path.join('configs',
                                f'{IMAGE_HARMONIZATION_DATASET}_personalGPU.py')
+
 checkpoint_file = os.path.join('checkpoints',
                                f'{IMAGE_HARMONIZATION_DATASET}.pth')
 d = torch.load(checkpoint_file)
 d['meta']['PALETTE'] = PALETTE
 torch.save(d, checkpoint_file)
 model = init_segmentor(config_file, checkpoint_file, device='cuda:0')
-# test a single image
-for test_image_name in tqdm(test_images[:100]):
-# test_image_name = test_images[0]
 
+images_to_scan = test_images if args.all_test_images else test_images[:100]
+# test_image_name = test_images[0]
+for test_image_name in tqdm(images_to_scan):
     img = os.path.join(data_root, 'composite_images', test_image_name)
     composite_image = Image.open(img)
     composite_image_tensor = ToTensor()(composite_image).unsqueeze(0)
     mask = os.path.join(data_root, 'masks',
                         convert_composite_image_name_to_mask_name(test_image_name))
-    result = inference_segmentor(model, img)
+    real = os.path.join(data_root, 'real_images',
+                        convert_composite_image_name_to_real_image_name(
+                            test_image_name))
+    overlaid_ground_truth = model.show_result(img, ToTensor()(Image.open(mask)),
+                                              palette=GT_PALETTE, show=False,
+                                              opacity=0.5)
+    overlaid_gt_pil = Image.fromarray(np.uint8(mmcv.bgr2rgb(overlaid_ground_truth))).convert('RGB')
 
-    show_result_pyplot(model, img, result, PALETTE,
-                       title='',
-                       path=os.path.join(
-                           target_root,
-                           IMAGE_HARMONIZATION_DATASET,
-                           f"{test_image_name}_overlaid_prediction.png"))
-    shutil.copy(mask, os.path.join(target_root, IMAGE_HARMONIZATION_DATASET,
-                                   f"{test_image_name}_original_mask.png"))
+    result = inference_segmentor(model, img)
+    overlaid_img = model.show_result(img, result,
+                                     palette=PALETTE, show=False, opacity=0.5)
+    overlaid_image_rgb = mmcv.bgr2rgb(overlaid_img)
+    overlaid_pil_image_rgb = Image.fromarray(np.uint8(overlaid_image_rgb)).convert('RGB')
+    """
+    Final image will be:
+    +++++++++++++++++++++++++++++++++
+    + real          | composite     +
+    + ground truth  | estimated map +
+    +++++++++++++++++++++++++++++++++
+    """
+    concatenated_image_top = get_concat_h(Image.open(real),
+                                          Image.open(img))
+    concatenated_image_bottom = get_concat_h(overlaid_gt_pil,
+                                             overlaid_pil_image_rgb)
+    concatenated_image = get_concat_v_cut(concatenated_image_top,
+                                          concatenated_image_bottom)
+    if IMAGE_HARMONIZATION_DATASET == 'HAdobe5k':
+        concatenated_image.resize((1024, 1024)).save(os.path.join(
+            target_root,
+            IMAGE_HARMONIZATION_DATASET,
+            f"{test_image_name}"))
+    else:
+        concatenated_image.save(os.path.join(target_root,
+                                             IMAGE_HARMONIZATION_DATASET,
+                                             f"{test_image_name}"))
+
