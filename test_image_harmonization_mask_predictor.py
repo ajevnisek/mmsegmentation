@@ -92,8 +92,14 @@ else:
     config_file = os.path.join('configs',
                                f'{IMAGE_HARMONIZATION_DATASET}_personalGPU.py')
 
-checkpoint_file = os.path.join('checkpoints',
-                               f'{IMAGE_HARMONIZATION_DATASET}.pth')
+if args.is_cluster:
+    checkpoint_file = os.path.join(
+        '/storage/jevnisek/MaskPredictionCheckopoints/',
+        f'{IMAGE_HARMONIZATION_DATASET}.pth')
+else:
+    checkpoint_file = os.path.join('checkpoints',
+                                   f'{IMAGE_HARMONIZATION_DATASET}.pth')
+
 d = torch.load(checkpoint_file)
 d['meta']['PALETTE'] = PALETTE
 torch.save(d, checkpoint_file)

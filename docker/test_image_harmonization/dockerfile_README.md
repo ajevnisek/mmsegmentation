@@ -5,13 +5,14 @@ Create a directory shared with the docker
 
 # Build docker Image
 ```bash
-docker image build -t ajevnisek/mmsegmentation-test-for-image-harmonization-mask-prediction .
+docker image build -t ajevnisek/mmsegmentation-test-for-image-harmonization-mask-prediction:latest .  
+docker push  ajevnisek/mmsegmentation-test-for-image-harmonization-mask-prediction:latest
 ```
 
 
 # Run docker Container
 ```bash
-docker run --rm --name container-demo -dit ajevnisek/mmsegmentation-test-for-image-harmonization-mask-prediction
+docker run --name container-demo -dit ajevnisek/mmsegmentation-test-for-image-harmonization-mask-prediction:latest
 ```
 ## Debug
 ### watch logs

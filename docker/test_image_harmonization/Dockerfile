@@ -35,5 +35,5 @@ RUN pip install openmim && mim install mmcv-full==1.6.0
 
 WORKDIR /
 ## clone repo and cd to a directory where the main is:
-COPY clone_repo_and_run_python_scripts.sh .
-ENTRYPOINT ["bash", "clone_repo_and_run_python_scripts.sh"]
+COPY run_python_scripts.sh .
+ENTRYPOINT ["bash", "run_python_scripts.sh"]
