@@ -71,11 +71,12 @@ IMAGE_HARMONIZATION_DATASET = args.dataset
 if args.is_cluster:
     data_root = os.path.join('/storage/jevnisek/ImageHarmonizationDataset/',
                              IMAGE_HARMONIZATION_DATASET)
-    target_root = '/storage/jevnisek/ImageHarmonizationResults/mask_prediction/'
+    target_root = '/storage/jevnisek/ImageHarmonizationResults/' \
+                  'mask_prediction_on_composite_images_results/'
 else:
     data_root = os.path.join(f'../data/Image_Harmonization_Dataset/',
                              IMAGE_HARMONIZATION_DATASET)
-    target_root = os.path.join('mask_detection_results',)
+    target_root = os.path.join('mask_prediction_on_composite_images_results',)
 
 os.makedirs(os.path.join(target_root,
                          IMAGE_HARMONIZATION_DATASET,), exist_ok=True)
@@ -105,6 +106,7 @@ d['meta']['PALETTE'] = PALETTE
 torch.save(d, checkpoint_file)
 model = init_segmentor(config_file, checkpoint_file, device='cuda:0')
 
+test_images.sort()
 images_to_scan = test_images if args.all_test_images else test_images[:100]
 # test_image_name = test_images[0]
 for test_image_name in tqdm(images_to_scan):
@@ -139,13 +141,8 @@ for test_image_name in tqdm(images_to_scan):
                                              overlaid_pil_image_rgb)
     concatenated_image = get_concat_v_cut(concatenated_image_top,
                                           concatenated_image_bottom)
-    if IMAGE_HARMONIZATION_DATASET == 'HAdobe5k':
-        concatenated_image.resize((1024, 1024)).save(os.path.join(
-            target_root,
-            IMAGE_HARMONIZATION_DATASET,
-            f"{test_image_name}"))
-    else:
-        concatenated_image.save(os.path.join(target_root,
-                                             IMAGE_HARMONIZATION_DATASET,
-                                             f"{test_image_name}"))
+    concatenated_image.resize((1024, 1024)).save(os.path.join(
+        target_root,
+        IMAGE_HARMONIZATION_DATASET,
+        f"{test_image_name[:-4]}_on_composite_image.jpg"))
 
