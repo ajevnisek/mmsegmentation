@@ -12,7 +12,7 @@ ENV CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
 
-RUN apt-get update && apt-get install -y git ninja-build libglib2.0-0 libsm6 libxrender-dev libxext6 libgl1-mesa-glx \
+RUN apt-get update && apt-get install -y vim git ninja-build libglib2.0-0 libsm6 libxrender-dev libxext6 libgl1-mesa-glx \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,7 +33,7 @@ RUN pip install --no-cache-dir -e .
 
 RUN pip install openmim && mim install mmcv-full==1.6.0
 
-WORKDIR /
+WORKDIR /mmsegmentation/
 ## clone repo and cd to a directory where the main is:
-COPY run_python_scripts.sh .
-ENTRYPOINT ["bash", "generate_mask_predictions.sh"]
+COPY run_python_script.sh .
+ENTRYPOINT ["bash", "run_python_script.sh"]
