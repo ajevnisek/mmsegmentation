@@ -12,7 +12,7 @@ ENV CMAKE_PREFIX_PATH="$(dirname $(which conda))/../"
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/7fa2af80.pub
 
-RUN apt-get update && apt-get install -y vim git ninja-build libglib2.0-0 libsm6 libxrender-dev libxext6 libgl1-mesa-glx \
+RUN apt-get update && apt-get install -y git ninja-build libglib2.0-0 libsm6 libxrender-dev libxext6 libgl1-mesa-glx \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -25,7 +25,6 @@ ARG MMCV
 RUN ["/bin/bash", "-c", "pip install --no-cache-dir mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu${CUDA//./}/torch${PYTORCH}/index.html"]
 
 # Install MMSegmentation
-ARG BUSTCACHE=1
 RUN git clone https://github.com/ajevnisek/mmsegmentation.git /mmsegmentation
 WORKDIR /mmsegmentation
 ENV FORCE_CUDA="1"
@@ -34,7 +33,7 @@ RUN pip install --no-cache-dir -e .
 
 RUN pip install openmim && mim install mmcv-full==1.6.0
 
-WORKDIR /mmsegmentation/
+WORKDIR /
 ## clone repo and cd to a directory where the main is:
-COPY run_python_script.sh .
-ENTRYPOINT ["bash", "run_python_script.sh"]
+COPY clone_repo_and_run_python_scripts.sh .
+ENTRYPOINT ["bash", "clone_repo_and_run_python_scripts.sh"]
