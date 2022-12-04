@@ -75,7 +75,7 @@ if args.is_cluster:
         '/storage/jevnisek/MaskPredictionOnHarmonizer'
         '/mask_prediction_on_harmonizer_output_results',
         IMAGE_HARMONIZATION_DATASET)
-    target_root = '/storage/jevnisek/MaskPredictionOnHarmonizer' \
+    target_root = '/storage/jevnisek/MaskPredictionResults' \
                   '/mask_prediction_on_harmonizer_output_results/'
 else:
     data_root = os.path.join(f'../data/Image_Harmonization_Dataset/',
