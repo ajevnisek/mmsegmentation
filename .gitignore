@@ -123,6 +123,7 @@ mmseg/.mim
 iccv09Data/
 checkpoints/
 presentation/
+CompositeAndRealImagesClassifier/
 mask_prediction_on_composite_images_results
 mask_prediction_on_harmonizer_output_results
 mask_prediction_on_real_images_results

@@ -118,9 +118,9 @@ for test_image_name in tqdm(images_to_scan):
     real = os.path.join(data_root, 'real_images',
                         convert_composite_image_name_to_real_image_name(
                             test_image_name))
-    overlaid_ground_truth = model.show_result(img, ToTensor()(Image.open(mask)),
-                                              palette=GT_PALETTE, show=False,
-                                              opacity=0.5)
+    overlaid_ground_truth = model.show_result(
+        img, (ToTensor()(Image.open(mask)) > 0.5).float(),
+        palette=GT_PALETTE, show=False, opacity=0.5)
     overlaid_gt_pil = Image.fromarray(np.uint8(mmcv.bgr2rgb(overlaid_ground_truth))).convert('RGB')
 
     result = inference_segmentor(model, img)

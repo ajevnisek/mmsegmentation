@@ -6,6 +6,7 @@ Create a directory shared with the docker
 # Build docker Image
 ```bash
 docker image build -t ajevnisek/mmsegmentation-mask-prediction-longer-runs .
+docker push  ajevnisek/mmsegmentation-mask-prediction-longer-runs
 ```
 
 
