@@ -73,6 +73,7 @@ else:
         datetime.now().strftime("%Y_%m_%d__%H_%M_%S"))
 
 os.makedirs(TARGET_ROOT, exist_ok=True)
+print(f'Saving results to: {TARGET_ROOT}')
 
 
 def convert_composite_image_name_to_real_image_name(composite_image_name,
