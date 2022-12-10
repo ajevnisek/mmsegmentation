@@ -274,18 +274,26 @@ model_ft, input_size = initialize_model(model_name, num_classes,
 # Print the model we just instantiated
 print(model_ft)
 
+
+class RGB2LAB(object):
+    def __call__(self, pil_image):
+        return mmcv.rgb2ycbcr(np.array(pil_image))
+
+
 # Data augmentation and normalization for training
 # Just normalization for validation
 data_transforms = {
     'train': transforms.Compose([
         transforms.Resize((input_size, input_size)),
         # transforms.RandomHorizontalFlip(),
+        RGB2LAB(),
         transforms.ToTensor(),
         # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),
     'test': transforms.Compose([
         transforms.Resize((input_size, input_size)),
         # transforms.CenterCrop(input_size),
+        RGB2LAB(),
         transforms.ToTensor(),
         # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]),

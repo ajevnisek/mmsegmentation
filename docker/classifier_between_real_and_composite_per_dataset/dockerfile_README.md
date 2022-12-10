@@ -35,17 +35,11 @@ docker system prune -a
 
 # Run this image with run:ai:
 ```bash
-runai submit -g 1 -e \
-  BASE_DIR='/storage/jevnisek/CompositeAndRealImagesClassifier'\  
-  -e MODEL='resnet' \
-  -e EPOCHS=20 -e BATCH_SIZE=128 \
-   --name mmsegmentation-classifier-real-composite-all-datasets \ 
-   -i ajevnisek/mmsegmentation-classifier-between-real-and-composite-all-datasets:latest \
-   --pvc=storage:/storage --large-shm
+runai submit -g 1 -e BASE_DIR='/storage/jevnisek/CompositeAndRealImagesClassifier' -e MODEL='resnet' -e EPOCHS=20 -e BATCH_SIZE=128 --name mmsegmentation-classifier-real-composite-all-datasets -i ajevnisek/mmsegmentation-classifier-between-real-and-composite-all-datasets:latest --pvc=storage:/storage --large-shm
 
 ```
 # Show the logs and telemetries:
 ```bash
-runai logs mmsegmentation-classifier-between-real-and-composite-per-dataset -f
+runai logs mmsegmentation-classifier-real-composite-all-datasets -f
 
 ```
