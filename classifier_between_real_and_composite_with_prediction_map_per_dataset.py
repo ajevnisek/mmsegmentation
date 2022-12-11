@@ -198,7 +198,8 @@ def initialize_model(model_name, num_classes, freeze_backbone,
         set_parameter_requires_grad(model_ft, freeze_backbone)
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs, num_classes)
-        model_ft.conv1.in_channels = in_channels
+        model_ft.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(7, 7),
+                                   stride=(2, 2), padding=(3, 3), bias=False)
         input_size = 224
 
     elif model_name == "alexnet":
@@ -284,7 +285,9 @@ class RealFakeDataset(torch.utils.data.Dataset):
             mask = self.masks_transform(mask)
 
         label = 0 if item < self.num_real_images else 1
-        sample = {'image': image, 'mask': mask, 'label': label}
+        sample = {'image': image, 'mask': mask, 'label': label,
+                  'image_path': self.all_images[item],
+                  'mask_path': self.all_masks[item]}
         return sample
 
     def __len__(self):
@@ -294,7 +297,7 @@ class RealFakeDataset(torch.utils.data.Dataset):
 # Initialize the model for this run
 model_ft, input_size = initialize_model(model_name, num_classes,
                                         freeze_backbone=freeze_backbone,
-                                        use_pretrained=True, in_channels=6)
+                                        use_pretrained=True, in_channels=4)
 
 # Print the model we just instantiated
 print(model_ft)
