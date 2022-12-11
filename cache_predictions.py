@@ -119,7 +119,7 @@ test_images.sort()
 if args.process_all_images:
     train_split = os.path.join(data_root,
                               f'{IMAGE_HARMONIZATION_DATASET}_train.txt')
-    with open(test_split, 'r') as f:
+    with open(train_split, 'r') as f:
         train_images = f.read().splitlines()
     images_to_scan = train_images + test_images
 else:
