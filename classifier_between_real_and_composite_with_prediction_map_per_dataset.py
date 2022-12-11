@@ -342,6 +342,8 @@ print("Initializing Datasets and Dataloaders...")
 
 fake_images = {}
 real_images = {}
+fake_images_maps = {}
+real_images_maps = {}
 for split in ['train', 'test']:
     split_path = os.path.join(IMAGES_DATASET_ROOT, f'{DATASET}_{split}.txt')
     fake_images_names = mmcv.list_from_file(split_path)
