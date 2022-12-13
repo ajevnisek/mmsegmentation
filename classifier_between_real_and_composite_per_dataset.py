@@ -185,7 +185,8 @@ def initialize_model(model_name, num_classes, freeze_backbone,
         set_parameter_requires_grad(model_ft, freeze_backbone)
         num_ftrs = model_ft.fc.in_features
         model_ft.fc = nn.Linear(num_ftrs, num_classes)
-        model_ft.conv1.in_channels = in_channels
+        model_ft.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(7, 7),
+                                   stride=(2, 2), padding=(3, 3), bias=False)
         input_size = 224
 
     elif model_name == "alexnet":

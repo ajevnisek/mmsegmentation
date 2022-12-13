@@ -26,8 +26,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", default="HCOCO",
                     choices=['HCOCO', 'HAdobe5k', 'HFlickr', 'Hday2night'])
 parser.add_argument('--model', default="resnet",
-                    choices=['resnet', 'alexnet', 'vgg', 'squeezenet',
-                             'densenet', 'inception'],
+                    choices=['resnet18', 'resnet34', 'resnet50', 'alexnet',
+                             'vgg', 'squeezenet', 'densenet', 'inception'],
                     help="which model to train, default: resnet.")
 parser.add_argument('--epochs', default=15, type=int,
                     help='Number of epochs, default: 15.')
@@ -40,7 +40,9 @@ parser.add_argument('--optimizer', default='Adam', choices=['Adam', 'SGD'],
                     help='which optimizer to use, default: Adam.')
 parser.add_argument('--is-cluster', default=False, action='store_true',
                     help="running on TAU cluster or on personal GPU.")
-
+parser.add_argument('--longer-mask-prediction-training', default=False,
+                    action='store_true',
+                    help="Which cached results to use for prediction masks.")
 args = parser.parse_args()
 # Models to choose from [resnet, alexnet, vgg, squeezenet, densenet, inception]
 model_name = args.model
@@ -63,9 +65,14 @@ if args.is_cluster == True:
     IMAGES_DATASET_ROOT = os.path.join(
         '/storage/jevnisek/ImageHarmonizationDataset/',
         DATASET)
-    MASKS_DATASET_ROOT = os.path.join(
-        '/storage/jevnisek/MaskPredictionDataset/',
-        DATASET)
+    if args.longer_mask_prediction_training:
+        MASKS_DATASET_ROOT = os.path.join(
+            '/storage/jevnisek/MaskPredictionDataset/longer_training',
+            DATASET)
+    else:
+        MASKS_DATASET_ROOT = os.path.join(
+            '/storage/jevnisek/MaskPredictionDataset/',
+            DATASET)
     TARGET_ROOT = os.path.join(
         '/storage/jevnisek/CompositeAndRealImagesClassifierWithPredictionMaps',
         DATASET,
@@ -191,7 +198,7 @@ def initialize_model(model_name, num_classes, freeze_backbone,
     model_ft = None
     input_size = 0
 
-    if model_name == "resnet":
+    if model_name == "resnet18":
         """ Resnet18
         """
         model_ft = models.resnet18(pretrained=use_pretrained)
@@ -202,6 +209,27 @@ def initialize_model(model_name, num_classes, freeze_backbone,
                                    stride=(2, 2), padding=(3, 3), bias=False)
         input_size = 224
 
+    elif model_name == "resnet34":
+        """ Resnet34
+        """
+        model_ft = models.resnet34(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, freeze_backbone)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        model_ft.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(7, 7),
+                                   stride=(2, 2), padding=(3, 3), bias=False)
+        input_size = 224
+
+    elif model_name == "resnet50":
+        """ Resnet50
+        """
+        model_ft = models.resnet50(pretrained=use_pretrained)
+        set_parameter_requires_grad(model_ft, freeze_backbone)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, num_classes)
+        model_ft.conv1 = nn.Conv2d(in_channels, 64, kernel_size=(7, 7),
+                                   stride=(2, 2), padding=(3, 3), bias=False)
+        input_size = 224
     elif model_name == "alexnet":
         """ Alexnet
         """
@@ -298,7 +326,6 @@ class RealFakeDataset(torch.utils.data.Dataset):
 model_ft, input_size = initialize_model(model_name, num_classes,
                                         freeze_backbone=freeze_backbone,
                                         use_pretrained=True, in_channels=4)
-
 # Print the model we just instantiated
 print(model_ft)
 

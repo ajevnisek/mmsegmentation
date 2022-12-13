@@ -9,30 +9,38 @@ import argparse
 #                                                            'HFlickr',
 #                                                            'Hday2night'])
 # args = parser.parse_args()
+
+BASE = 'checkpoints/longer_training/jsons'
+TARGET_BASE = 'checkpoints/longer_training/jsons/results'
 dataset_to_metrics = {}
 for DATASET in ['HCOCO', 'HAdobe5k', 'HFlickr', 'Hday2night']:
 # DATASET = args.dataset
 
-    BASE = 'mask_detection_results/training_log_jsons/'
-    TARGET_BASE = 'mask_detection_results/training_logs_figures'
+
     VAL_EVERY = 20
     os.makedirs(os.path.join(TARGET_BASE, DATASET), exist_ok=True)
 
-    with open(os.path.join(BASE, DATASET+'.log.json')) as f:
+    with open(os.path.join(BASE, DATASET+'.json')) as f:
         log_lines = f.read().splitlines()
 
+    new_runs = [pos for pos, l in enumerate(log_lines) if l == "{}"]
+    if len(new_runs) > 0:
+        log_lines = log_lines[new_runs[-1]+1:]
 
     train = {'loss': [], 'aux.acc_seg': [], 'iter': []}
     test = {'mIoU': [], 'mAcc': [], 'IoU.original': [], 'IoU.augmented': [],
             'Acc.original': [], 'Acc.augmented': [], 'iter': []}
     for line in log_lines:
         line_data = json.loads(line)
-        if line_data['mode'] == 'train':
-            for k in train.keys():
-                train[k].append(line_data[k])
-        else:
-            for k in test.keys():
-                test[k].append(line_data[k])
+        try:
+            if line_data['mode'] == 'train':
+                for k in train.keys():
+                    train[k].append(line_data[k])
+            else:
+                for k in test.keys():
+                    test[k].append(line_data[k])
+        except:
+            import ipdb; ipdb.set_trace()
 
     for k in train.keys():
         plt.clf()

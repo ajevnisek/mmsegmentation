@@ -59,7 +59,9 @@ parser.add_argument('--is-cluster', default=False, action='store_true',
 parser.add_argument('--process-all-images', default=False, action='store_true',
                     help='if set, then all images in the train and test sets '
                          'will be processed. Otherwise only 100 images.')
-
+parser.add_argument('--longer-mask-prediction-training', default=False,
+                    action='store_true',
+                    help="Which cached results to use for prediction masks.")
 args = parser.parse_args()
 
 IMAGE_HARMONIZATION_DATASET = args.dataset
@@ -72,7 +74,10 @@ IMAGE_HARMONIZATION_DATASET = args.dataset
 if args.is_cluster:
     data_root = os.path.join('/storage/jevnisek/ImageHarmonizationDataset/',
                              IMAGE_HARMONIZATION_DATASET)
-    target_root = '/storage/jevnisek/MaskPredictionDataset/'
+    if args.longer_mask_prediction_training:
+        target_root = '/storage/jevnisek/MaskPredictionDataset/longer_training'
+    else:
+        target_root = '/storage/jevnisek/MaskPredictionDataset/'
 else:
     data_root = os.path.join(f'../data/Image_Harmonization_Dataset/',
                              IMAGE_HARMONIZATION_DATASET)
@@ -102,9 +107,14 @@ else:
                                f'{IMAGE_HARMONIZATION_DATASET}_personalGPU.py')
 # if is_cluster:
 if args.is_cluster:
-    checkpoint_file = os.path.join(
-        '/storage/jevnisek/MaskPredictionCheckopoints/',
-        f'{IMAGE_HARMONIZATION_DATASET}.pth')
+    if args.longer_mask_prediction_training:
+        checkpoint_file = os.path.join(
+            '/storage/jevnisek/MaskPredictionCheckopoints/longer_training/',
+            f'{IMAGE_HARMONIZATION_DATASET}.pth')
+    else:
+        checkpoint_file = os.path.join(
+            '/storage/jevnisek/MaskPredictionCheckopoints/',
+            f'{IMAGE_HARMONIZATION_DATASET}.pth')
 else:
     checkpoint_file = os.path.join('checkpoints',
                                    f'{IMAGE_HARMONIZATION_DATASET}.pth')
