@@ -119,6 +119,9 @@ else:
     checkpoint_file = os.path.join('checkpoints',
                                    f'{IMAGE_HARMONIZATION_DATASET}.pth')
 
+
+print(f"LOADING checkpoint from: {checkpoint_file}")
+print(f"SAVING masks to {target_root}")
 d = torch.load(checkpoint_file)
 d['meta']['PALETTE'] = PALETTE
 torch.save(d, checkpoint_file)
