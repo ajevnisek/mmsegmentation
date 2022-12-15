@@ -1,6 +1,3 @@
-
-# create results directories:
-#python cache_predictions.py --dataset ${DATASET} --is-cluster --process-all-images
 git pull
 python cache_predictions.py --dataset ${DATASET} --is-cluster \
   --process-all-images --longer-mask-prediction-training
