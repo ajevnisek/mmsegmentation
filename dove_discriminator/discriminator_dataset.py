@@ -84,8 +84,8 @@ class ImageHarmonizationDataset(torch.utils.data.Dataset):
         return len(self.real_images)
 
 
-def get_dataset(dataset_name, dataset_type='train'):
-    dataset = ImageHarmonizationDataset(dataset_root=DATASET_ROOT,
+def get_dataset(dataset_root, dataset_name, dataset_type='train'):
+    dataset = ImageHarmonizationDataset(dataset_root=dataset_root,
                                         dataset_name=dataset_name,
                                         dataset_type=dataset_type,
                                         image_transform=DEFAULT_IMAGE_TRANSFORM,
@@ -93,9 +93,9 @@ def get_dataset(dataset_name, dataset_type='train'):
     return dataset
 
 
-def get_loader(dataset_name, dataset_type='train', batch_size=128,
+def get_loader(dataset_root, dataset_name, dataset_type='train', batch_size=128,
                shuffle=True):
-    dataloader = DataLoader(get_dataset(dataset_name,
+    dataloader = DataLoader(get_dataset(dataset_root, dataset_name,
                                         dataset_type=dataset_type),
                             batch_size=batch_size,
                             shuffle=shuffle)
