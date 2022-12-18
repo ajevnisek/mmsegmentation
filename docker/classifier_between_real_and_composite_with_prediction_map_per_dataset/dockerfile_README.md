@@ -10,7 +10,7 @@ Train a per-dataset classifier between real and composite images.
 docker image build -t ajevnisek/classifier-real-and-composite-with-longer-trained-preds:latest .  --no-cache
 docker push  ajevnisek/classifier-real-and-composite-with-longer-trained-preds:latest
 
-docker image build -t ajevnisek/classifier-real-and-composite-with-longer -trained-preds:latest .  --no-cache; docker push ajevnisek/classifier-real-and-composite-with-longer-trained-preds:latest
+docker image build -t ajevnisek/classifier-real-and-composite-with-longer-trained-preds:latest .  --no-cache; docker push ajevnisek/classifier-real-and-composite-with-longer-trained-preds:latest
 ```
 
 

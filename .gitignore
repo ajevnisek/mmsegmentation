@@ -119,6 +119,8 @@ mmseg/.mim
 # Pytorch
 *.pth
 
+
+results/
 # stanford background dataset
 iccv09Data/
 checkpoints/
