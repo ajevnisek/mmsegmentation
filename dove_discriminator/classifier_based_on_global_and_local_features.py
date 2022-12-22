@@ -153,13 +153,13 @@ class GlobalAndLocalFeaturesDiscriminator:
 
         # update train losses:
         self.train_loss /= (len(self.train_loader) *
-            self.train_loader.dataset.batch_size)
+            self.train_loader.batch_size)
         self.train_loss_D_fake /= (len(self.train_loader) *
-                                   self.train_loader.dataset.batch_size)
+                                   self.train_loader.batch_size)
         self.train_loss_D_real /= (len(self.train_loader) *
-                                   self.train_loader.dataset.batch_size)
+                                   self.train_loader.batch_size)
         self.train_gradient_penalty /= (len(self.train_loader) *
-                                        self.train_loader.dataset.batch_size)
+                                        self.train_loader.batch_size)
 
         # log train losses in tensorboard:
         self.tb_writer.add_scalar('Loss/train/loss', self.train_loss, self.epoch)
@@ -219,9 +219,9 @@ class GlobalAndLocalFeaturesDiscriminator:
                     ver_real.detach().cpu())
 
         # update train losses:
-        self.test_loss /= (len(loader) * loader.dataset.batch_size)
-        self.test_loss_D_fake /= (len(loader) * loader.dataset.batch_size)
-        self.test_loss_D_real /= (len(loader) * loader.dataset.batch_size)
+        self.test_loss /= (len(loader) * loader.batch_size)
+        self.test_loss_D_fake /= (len(loader) * loader.batch_size)
+        self.test_loss_D_real /= (len(loader) * loader.batch_size)
 
         # log train losses in tensorboard:
         self.tb_writer.add_scalar('Loss/test/loss', self.test_loss,
