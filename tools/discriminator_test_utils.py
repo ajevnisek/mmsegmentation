@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+
 import torch
 
 import matplotlib.pyplot as plt
@@ -81,3 +83,22 @@ def generate_graphs(results_dict, curr_metrics, epoch, results_dir):
              label='real')
     plt.legend()
     plt.savefig(os.path.join(epoch_results_dir, 'combined_score.png'))
+
+
+def get_logger(logger_file):
+    # create logger
+    logger = logging.getLogger(__file__)
+    logger.setLevel(logging.DEBUG)
+    # create file handler which logs even debug messages
+    fh = logging.FileHandler(logger_file)
+    fh.setLevel(logging.DEBUG)
+    # create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s')
+
+    # add formatter to ch
+    fh.setFormatter(formatter)
+
+    # add ch to logger
+    logger.addHandler(fh)
+    return logger

@@ -31,6 +31,8 @@ WORKDIR /mmsegmentation
 ENV FORCE_CUDA="1"
 RUN pip install -r requirements.txt
 RUN pip install --no-cache-dir -e .
+RUN pip install -U scikit-learn
+RUN pip install tensorboard
 
 RUN pip install openmim && mim install mmcv-full==1.6.0
 

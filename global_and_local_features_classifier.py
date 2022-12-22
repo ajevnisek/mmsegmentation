@@ -30,21 +30,9 @@ def main():
                               batch_size=args.batch_size)
     test_loader = get_loader(args.dataset_root, args.dataset,
                              dataset_type='test')
-    discriminator_trainer = GlobalAndLocalFeaturesDiscriminator(train_loader,
-                                                                test_loader)
-    for epoch in range(1, 1 + args.epochs):
-        discriminator_trainer.train_one_epoch()
-        results = discriminator_trainer.test_one_epoch()
-        curr_metrics = calc_metrics(results)
-        generate_graphs(results, curr_metrics, epoch, results_dir)
-        log_metrics(curr_metrics, epoch, results_dir)
-        print(f"Epoch [{epoch:03d}]: Domain Verification Score: "
-              f"{curr_metrics['auc_dove_score'] * 100:.2f} [%]")
-        print(f"Epoch [{epoch:03d}]: Global Score: "
-              f"{curr_metrics['auc_global_score'] * 100:.2f} [%]")
-        print(f"Epoch [{epoch:03d}]: Combined Score: "
-              f"{curr_metrics['auc_combined_score'] * 100:.2f} [%]")
-        print("~" * 30)
+    discriminator_trainer = GlobalAndLocalFeaturesDiscriminator(
+        train_loader, test_loader, results_dir)
+    discriminator_trainer.run(args.epochs)
 
 
 if __name__ == "__main__":
