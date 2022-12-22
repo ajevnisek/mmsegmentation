@@ -249,7 +249,7 @@ class GlobalAndLocalFeaturesDiscriminator:
             'net': self.netD.state_dict(),
             'train_loss': self.train_loss,
             'test_loss': self.test_loss,
-            'epoch': epoch,
+            'epoch': self.epoch,
         }
         torch.save(state,
                    os.path.join(self.checkpoint_path,
@@ -311,5 +311,5 @@ class GlobalAndLocalFeaturesDiscriminator:
             print(f"Epoch [{self.epoch:03d}]: Combined Score: "
                   f"{curr_metrics['auc_combined_score'] * 100:.2f} [%]")
             print("~" * 30)
-            if epoch % 5 == 0 or epoch == epochs:
+            if self.epoch % 5 == 0 or self.epoch == epochs:
                 self.save_checkpoint()
