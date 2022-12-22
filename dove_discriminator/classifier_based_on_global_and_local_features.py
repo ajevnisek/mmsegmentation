@@ -259,11 +259,14 @@ class GlobalAndLocalFeaturesDiscriminator:
             results = self.test_one_epoch(self.train_loader)
             curr_metrics = calc_metrics(results)
             self.tb_writer.add_scalar('AuC/train_auc_dove_score',
-                                      curr_metrics['auc_dove_score'])
+                                      curr_metrics['auc_dove_score'],
+                                      self.epoch)
             self.tb_writer.add_scalar('AuC/train_auc_global_score',
-                                      curr_metrics['auc_global_score'])
+                                      curr_metrics['auc_global_score'],
+                                      self.epoch)
             self.tb_writer.add_scalar('AuC/train_auc_combined_score',
-                                      curr_metrics['auc_combined_score'])
+                                      curr_metrics['auc_combined_score'],
+                                      self.epoch)
             message = (f"[{self.epoch}] | "
                        f"Train Loss: {self.train_loss:.3f} | "
                        f"Train AuC Dove Score: "
@@ -282,11 +285,14 @@ class GlobalAndLocalFeaturesDiscriminator:
             results = self.test_one_epoch(self.test_loader)
             curr_metrics = calc_metrics(results)
             self.tb_writer.add_scalar('AuC/test_auc_dove_score',
-                                      curr_metrics['auc_dove_score'])
+                                      curr_metrics['auc_dove_score'],
+                                      self.epoch)
             self.tb_writer.add_scalar('AuC/test_auc_global_score',
-                                      curr_metrics['auc_global_score'])
+                                      curr_metrics['auc_global_score'],
+                                      self.epoch)
             self.tb_writer.add_scalar('AuC/test_auc_combined_score',
-                                      curr_metrics['auc_combined_score'])
+                                      curr_metrics['auc_combined_score'],
+                                      self.epoch)
             message = (f"[{self.epoch}] | "
                        f"Test Loss: {self.test_loss:.3f} | "
                        f"Test AuC Dove Score: "
