@@ -27,7 +27,7 @@ def calc_metrics(results_dict):
         torch.ones_like(results_dict['composite_image_global_score']),
         torch.zeros_like(results_dict['real_image_global_score'])])
     auc_global_score = metrics.roc_auc_score(gt_labels, global_score)
-    auc_dove_score = 1 - auc_global_score if auc_global_score < 0.5 else \
+    auc_global_score = 1 - auc_global_score if auc_global_score < 0.5 else \
         auc_global_score
     combined_score = dove_score + global_score
     auc_combined_score = metrics.roc_auc_score(gt_labels, combined_score)
