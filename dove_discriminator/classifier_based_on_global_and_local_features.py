@@ -143,13 +143,6 @@ class GlobalAndLocalFeaturesDiscriminator:
         self.train_loss_D_real += self.loss_D_real.item()
         self.train_gradient_penalty += gradient_penalty.item()
 
-    def reset_stats(self):
-        # update train losses:
-        self.train_loss /= len(self.train_loader)
-        self.train_loss_D_fake /= len(self.train_loader)
-        self.train_loss_D_real /= len(self.train_loader)
-        self.train_gradient_penalty /= len(self.train_loader)
-
     def train_one_epoch(self):
         for batch in tqdm(self.train_loader):
             self.set_input(batch)
@@ -159,10 +152,14 @@ class GlobalAndLocalFeaturesDiscriminator:
             self.optimizer_D.step()  # update D's weights
 
         # update train losses:
-        self.train_loss /= len(self.train_loader)
-        self.train_loss_D_fake /= len(self.train_loader)
-        self.train_loss_D_real /= len(self.train_loader)
-        self.train_gradient_penalty /= len(self.train_loader)
+        self.train_loss /= (len(self.train_loader) *
+            self.train_loader.dataset.batch_size)
+        self.train_loss_D_fake /= (len(self.train_loader) *
+                                   self.train_loader.dataset.batch_size)
+        self.train_loss_D_real /= (len(self.train_loader) *
+                                   self.train_loader.dataset.batch_size)
+        self.train_gradient_penalty /= (len(self.train_loader) *
+                                        self.train_loader.dataset.batch_size)
 
         # log train losses in tensorboard:
         self.tb_writer.add_scalar('Loss/train/loss', self.train_loss, self.epoch)
@@ -222,9 +219,9 @@ class GlobalAndLocalFeaturesDiscriminator:
                     ver_real.detach().cpu())
 
         # update train losses:
-        self.test_loss /= len(self.test_loader)
-        self.test_loss_D_fake /= len(self.test_loader)
-        self.test_loss_D_real /= len(self.test_loader)
+        self.test_loss /= (len(loader) * loader.dataset.batch_size)
+        self.test_loss_D_fake /= (len(loader) * loader.dataset.batch_size)
+        self.test_loss_D_real /= (len(loader) * loader.dataset.batch_size)
 
         # log train losses in tensorboard:
         self.tb_writer.add_scalar('Loss/test/loss', self.test_loss,
