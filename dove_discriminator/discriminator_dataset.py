@@ -26,7 +26,9 @@ class ImageHarmonizationDataset(torch.utils.data.Dataset):
         self.dataset_name = dataset_name
         self.image_transform = image_transform
         self.mask_transform = mask_transform
+        self.initialize(dataset_root, dataset_name, text_file_path)
 
+    def initialize(self, dataset_root, dataset_name, text_file_path):
         text_file_path = os.path.join(dataset_root, dataset_name,
                                       f"{dataset_name}_{dataset_type}.txt")
         self.composite_images_names = mmcv.list_from_file(text_file_path)
@@ -84,12 +86,55 @@ class ImageHarmonizationDataset(torch.utils.data.Dataset):
         return len(self.real_images)
 
 
+class IHDDataset(ImageHarmonizationDataset):
+    def __init__(self, dataset_root='../data/Image_Harmonization_Dataset/',
+                 dataset_name='IHD', dataset_type='train',
+                 image_transform=None, mask_transform=None):
+        super().__init__(dataset_root, dataset_name, dataset_type,
+                         image_transform, mask_transform)
+        self.dataset_name = dataset_name
+        self.image_transform = image_transform
+        self.mask_transform = mask_transform
+        self.initialize(dataset_root, dataset_name, text_file_path)
+
+    def initialize(self, dataset_root, dataset_name, text_file_path):
+        text_file_path = os.path.join(dataset_root, dataset_name,
+                                      f"{dataset_name}_{dataset_type}.txt")
+        self.composite_images_names = mmcv.list_from_file(text_file_path)
+        self.composite_images = [os.path.join(dataset_root, image_path)
+                                 for image_path in self.composite_images_names]
+        self.real_images = []
+        self.masks = []
+        for composite_image_path in self.composite_images_names:
+            composite_image_name = os.path.split(composite_image_path)[-1]
+            dataset_name = os.path.split(os.path.split(composite_image_path)[
+                                             0])[0]
+            self.real_images.append(
+                os.path.join(
+                    dataset_root, dataset_name, 'real_images',
+                    self.composite_name_to_real_name(
+                        composite_image_name)))
+            self.masks.append(
+                os.path.join(
+                    dataset_root, dataset_name, 'masks',
+                    self.composite_name_to_mask_name(
+                        composite_image_name, '.png'))
+            )
+
+
 def get_dataset(dataset_root, dataset_name, dataset_type='train'):
-    dataset = ImageHarmonizationDataset(dataset_root=dataset_root,
-                                        dataset_name=dataset_name,
-                                        dataset_type=dataset_type,
-                                        image_transform=DEFAULT_IMAGE_TRANSFORM,
-                                        mask_transform=DEFAULT_MASK_TRANSFORM)
+    if dataset_name == 'IHD':
+        dataset = IHDDataset(dataset_root=dataset_root,
+                             dataset_name=dataset_name,
+                             dataset_type=dataset_type,
+                             image_transform=DEFAULT_IMAGE_TRANSFORM,
+                             mask_transform=DEFAULT_MASK_TRANSFORM)
+    else:
+        dataset = ImageHarmonizationDataset(dataset_root=dataset_root,
+                                            dataset_name=dataset_name,
+                                            dataset_type=dataset_type,
+                                            image_transform=DEFAULT_IMAGE_TRANSFORM,
+                                            mask_transform=DEFAULT_MASK_TRANSFORM)
     return dataset
 
 

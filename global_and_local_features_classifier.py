@@ -36,7 +36,7 @@ def main():
     discriminator_args = DiscriminatorArgs(learning_rate=args.learning_rate,
                                            gan_mode=args.gan_mode)
     discriminator_trainer = GlobalAndLocalFeaturesDiscriminator(
-        train_loader, test_loader, results_dir)
+        train_loader, test_loader, results_dir, discriminator_args)
     discriminator_trainer.run(args.epochs)
 
 
