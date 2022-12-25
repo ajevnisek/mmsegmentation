@@ -9,10 +9,12 @@ import torch
 import torch.nn as nn
 
 from collections import defaultdict
+
 from torch.utils.tensorboard import SummaryWriter
 
 import dove_discriminator.networks as networks
 
+from tools.discriminator_args import DiscriminatorArgs
 from dove_discriminator.dovenet_model import create_discriminator
 from dove_discriminator.discriminator_dataset import get_loader
 from tools.discriminator_test_utils import calc_metrics, log_metrics,\
@@ -23,17 +25,19 @@ TEXT_LOGS = 'text-logs'
 ARGUMENTS_LOGS = 'arguments-logs'
 CHECKPOINTS_ROOT = 'checkpoints'
 TENSORBOARD_LOGS = 'tensorboard-logs'
+DEFAULT_DISCRIMINATOR_ARGS = DiscriminatorArgs()
 
 
 class GlobalAndLocalFeaturesDiscriminator:
-    def __init__(self, train_loader, test_loader, root_results_dir):
+    def __init__(self, train_loader, test_loader, root_results_dir,
+                 discriminator_args=DEFAULT_DISCRIMINATOR_ARGS):
         self.netD = create_discriminator()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        self.gan_mode = 'wgangp'
+        self.gan_mode = discriminator_args.gan_mode
         self.criterionGAN = networks.GANLoss(self.gan_mode).to(self.device)
-        self.lr = 0.0002
-        self.beta1 = 0.5
-        self.gp_ratio = 1.0
+        self.lr = discriminator_args.learning_rate
+        self.beta1 = discriminator_args.beta1
+        self.gp_ratio = discriminator_args.gp_ratio
         self.relu = nn.ReLU()
         self.optimizer_D = torch.optim.Adam(self.netD.parameters(),
                                             lr=self.lr,

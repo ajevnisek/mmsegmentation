@@ -3,6 +3,7 @@ import argparse
 
 from datetime import datetime
 
+from tools.discriminator_args import DiscriminatorArgs
 from tools.discriminator_test_utils import calc_metrics, log_metrics,\
     generate_graphs
 from dove_discriminator.discriminator_dataset import get_loader
@@ -17,6 +18,8 @@ def parse_args():
     parser.add_argument('--dataset', type=str, default='Hday2night')
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--batch-size', type=int, default=1)
+    parser.add_argument('--learning-rate', type=float, default=1e-3)
+    parser.add_argument('--gan-mode', type=str, default='wgangp')
     parser.add_argument('--results-dir', type=str, default='results/Hday2night')
     return parser.parse_args()
 
@@ -30,6 +33,8 @@ def main():
                               batch_size=args.batch_size)
     test_loader = get_loader(args.dataset_root, args.dataset,
                              dataset_type='test')
+    discriminator_args = DiscriminatorArgs(learning_rate=args.learning_rate,
+                                           gan_mode=args.gan_mode)
     discriminator_trainer = GlobalAndLocalFeaturesDiscriminator(
         train_loader, test_loader, results_dir)
     discriminator_trainer.run(args.epochs)
