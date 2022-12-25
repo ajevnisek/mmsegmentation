@@ -19,7 +19,8 @@ def parse_args():
     parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--batch-size', type=int, default=1)
     parser.add_argument('--learning-rate', type=float, default=1e-3)
-    parser.add_argument('--gan-mode', type=str, default='wgangp')
+    parser.add_argument('--gan-mode', type=str, default='wgangp',
+                        choices=['wgangp', 'vanilla', 'lsgan'])
     parser.add_argument('--results-dir', type=str, default='results/Hday2night')
     return parser.parse_args()
 
@@ -30,9 +31,9 @@ def main():
                                datetime.now().strftime("%Y_%m_%d__%H_%M_%S"))
     train_loader = get_loader(args.dataset_root, args.dataset,
                               dataset_type='train',
-                              batch_size=args.batch_size)
+                              batch_size=args.batch_size, shuffle=True)
     test_loader = get_loader(args.dataset_root, args.dataset,
-                             dataset_type='test')
+                             dataset_type='test', shuffle=False)
     discriminator_args = DiscriminatorArgs(learning_rate=args.learning_rate,
                                            gan_mode=args.gan_mode)
     discriminator_trainer = GlobalAndLocalFeaturesDiscriminator(

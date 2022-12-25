@@ -26,9 +26,9 @@ class ImageHarmonizationDataset(torch.utils.data.Dataset):
         self.dataset_name = dataset_name
         self.image_transform = image_transform
         self.mask_transform = mask_transform
-        self.initialize(dataset_root, dataset_name, text_file_path)
+        self.initialize(dataset_root, dataset_name, dataset_type)
 
-    def initialize(self, dataset_root, dataset_name, text_file_path):
+    def initialize(self, dataset_root, dataset_name, dataset_type):
         text_file_path = os.path.join(dataset_root, dataset_name,
                                       f"{dataset_name}_{dataset_type}.txt")
         self.composite_images_names = mmcv.list_from_file(text_file_path)
@@ -90,15 +90,13 @@ class IHDDataset(ImageHarmonizationDataset):
     def __init__(self, dataset_root='../data/Image_Harmonization_Dataset/',
                  dataset_name='IHD', dataset_type='train',
                  image_transform=None, mask_transform=None):
-        super().__init__(dataset_root, dataset_name, dataset_type,
-                         image_transform, mask_transform)
         self.dataset_name = dataset_name
         self.image_transform = image_transform
         self.mask_transform = mask_transform
-        self.initialize(dataset_root, dataset_name, text_file_path)
+        self.initialize(dataset_root, dataset_name, dataset_type)
 
-    def initialize(self, dataset_root, dataset_name, text_file_path):
-        text_file_path = os.path.join(dataset_root, dataset_name,
+    def initialize(self, dataset_root, dataset_name, dataset_type):
+        text_file_path = os.path.join(dataset_root,
                                       f"{dataset_name}_{dataset_type}.txt")
         self.composite_images_names = mmcv.list_from_file(text_file_path)
         self.composite_images = [os.path.join(dataset_root, image_path)
@@ -141,7 +139,7 @@ def get_dataset(dataset_root, dataset_name, dataset_type='train'):
 def get_loader(dataset_root, dataset_name, dataset_type='train', batch_size=128,
                shuffle=True):
     dataloader = DataLoader(get_dataset(dataset_root, dataset_name,
-                                        dataset_type=dataset_type),
+                                        dataset_type=dataset_type,),
                             batch_size=batch_size,
                             shuffle=shuffle)
     return dataloader
