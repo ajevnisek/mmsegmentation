@@ -2,7 +2,12 @@ import os
 import torch
 from math import ceil
 from PIL import Image
-from torchvision.models import vgg, VGG11_Weights
+try:
+    from torchvision.models import vgg, VGG11_Weights
+    IS_CLUSTER = False
+except:
+    from torchvision.models import vgg11
+    IS_CLUSTER = True
 import torchvision.transforms as transforms
 
 from torch.utils.data import DataLoader
@@ -55,10 +60,15 @@ class Trainer:
                                                 'tensorboard', )
         self.logger = get_logger(self.logfile_path)
         self.tb_writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
+        self.epochs = ceil(25 * 1e3 / self.batch_size / len(
+            self.train_dataloader) * 1.0)
 
     def initialize_network(self,):
-        weights = VGG11_Weights.IMAGENET1K_V1
-        model = vgg.vgg11(weights=weights)
+        if IS_CLUSTER:
+            model = vgg11(pretrained=True)
+        else:
+            weights = VGG11_Weights.IMAGENET1K_V1
+            model = vgg.vgg11(weights=weights)
         # adapt vgg to binary classification
         model.classifier[6] = torch.nn.Linear(in_features=4096,
                                               out_features=2, bias=True)
@@ -80,8 +90,8 @@ class Trainer:
             self.optimizer, step_size=int(1e4 / self.batch_size), gamma=0.1)
         self.criterion = torch.nn.CrossEntropyLoss()
         self.curr_iters = 0
-        self.num_iters = 25 * 1e4
-        self.epochs = ceil(self.num_iters / self.batch_size)
+        self.num_iters = 25 * 1e3
+
 
 
     def initialize_datasets(self):
