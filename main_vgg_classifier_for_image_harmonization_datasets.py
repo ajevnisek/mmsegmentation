@@ -14,6 +14,12 @@ def parse_args():
                                  'Hday2night', 'IHD'],
                         default='Hday2night',
                         help='dataset name.')
+    parser.add_argument('--epochs',
+                        type=int,
+                        default=-1,
+                        help='Number of train epochs. Default is -1 which '
+                             'means that the number of epochs will be a bit '
+                             'higher than 25K iterations.')
     parser.add_argument('--data-dir',
                         default='../data/Image_Harmonization_Dataset/',
                         choices=[

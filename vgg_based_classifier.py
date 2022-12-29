@@ -42,7 +42,8 @@ class FakesAndRealsDataset(torch.utils.data.Dataset):
 
 
 class Trainer:
-    def __init__(self, train_images_paths, test_images_paths, artifacts_dir):
+    def __init__(self, train_images_paths, test_images_paths, artifacts_dir,
+                 epochs=-1):
         self.train_images_paths = train_images_paths
         self.test_images_paths = test_images_paths
 
@@ -60,8 +61,11 @@ class Trainer:
                                                 'tensorboard', )
         self.logger = get_logger(self.logfile_path)
         self.tb_writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
-        self.epochs = ceil(25 * 1e3 / self.batch_size / len(
-            self.train_dataloader) * 1.0)
+        if epochs == -1:
+            self.epochs = ceil(25 * 1e3 / self.batch_size / len(
+                self.train_dataloader) * 1.0)
+        else:
+            self.epochs = epochs
 
     def initialize_network(self,):
         if IS_CLUSTER:

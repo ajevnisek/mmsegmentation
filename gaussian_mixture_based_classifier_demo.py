@@ -59,16 +59,22 @@ auc = roc_auc_score(
 )
 
 print(f"Area Under the Curve: {auc * 100:.2f} [%]")
-
+longest_vector_len = max([len(real_bg_scores), len(composite_scores),
+                          len(real_scores)])
 plt.clf()
 plt.title('GMM scores histogram\n'
           f"Area Under the Curve: {auc * 100:.2f} [%]")
-plt.hist(real_bg_scores, bins=int(np.sqrt(real_bg_scores.shape[0])),
-         alpha=0.5, label='real-bg-scores')
-plt.hist(real_scores, bins=int(np.sqrt(real_scores.shape[0])),
-         alpha=0.5, label='real-scores')
-plt.hist(composite_scores, bins=int(np.sqrt(real_scores.shape[0])),
-         alpha=0.5, label='composite-scores')
+binwidth = 0.07
+
+plt.hist(real_bg_scores, bins=np.arange(min(real_bg_scores), max(real_bg_scores)
+                                     + binwidth, binwidth),
+         alpha=0.5, label='pristine-pixels-bg')
+plt.hist(real_scores, bins=np.arange(min(real_scores), max(real_scores) +
+                                  binwidth, binwidth),
+         alpha=0.5, label='real-image-fg')
+plt.hist(composite_scores, bins=np.arange(min(composite_scores),
+                                       max(composite_scores) + binwidth, binwidth),
+         alpha=0.5, label='composite-image-fg')
 plt.legend()
 plt.grid(True)
 plt.show()
