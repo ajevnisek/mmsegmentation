@@ -98,7 +98,7 @@ def main():
                               datetime.now().strftime("%Y_%m_%d__%H_%M_%S"))
     os.makedirs(target_dir, exist_ok=True)
     trainer = Trainer(images_paths['train'], images_paths['test'],
-                      target_dir)
+                      target_dir, epochs=args.epochs)
     trainer.run()
 
 

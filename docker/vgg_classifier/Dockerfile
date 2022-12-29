@@ -37,6 +37,7 @@ RUN pip install tensorboard
 RUN pip install openmim && mim install mmcv-full==1.6.0
 
 WORKDIR /mmsegmentation/
+RUN echo "test"
 ## clone repo and cd to a directory where the main is:
 COPY run_python_script.sh .
 ENTRYPOINT ["bash", "run_python_script.sh"]
