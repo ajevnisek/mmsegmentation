@@ -11,12 +11,12 @@ def parse_args():
                                      'based on VGG')
     parser.add_argument('--dataset',
                         choices=['HCOCO', 'HAdobe5k', 'HFlickr',
-                                 'Hday2night', 'IHD'],
+                                 'Hday2night', 'IHD', 'LabelMe'],
                         default='Hday2night',
                         help='dataset name.')
     parser.add_argument('--epochs',
                         type=int,
-                        default=-1,
+                        default=0,
                         help='Number of train epochs. Default is -1 which '
                              'means that the number of epochs will be a bit '
                              'higher than 25K iterations.')
@@ -24,7 +24,10 @@ def parse_args():
                         default='../data/Image_Harmonization_Dataset/',
                         choices=[
                             '/storage/jevnisek/ImageHarmonizationDataset/',
-                            '../data/Image_Harmonization_Dataset/'])
+                            '../data/Image_Harmonization_Dataset/',
+                            '../data/realism_datasets/',
+                            '/storage/jevnisek/realism_datasets/'
+                        ])
     parser.add_argument('--target-dir', default='results/vgg_training')
     return parser.parse_args()
 
@@ -36,9 +39,10 @@ def convert_fake_name_to_real_name(composite_image_name,
     return real_image
 
 
-def get_images_paths_from_filename(base_dir, dataset):
+def get_images_paths_from_filename_for_image_harmonization_datasets(
+        base_dir, dataset):
     images_paths = {}
-    for mode in ['train', 'test',]:
+    for mode in ['train', 'test', ]:
         file = os.path.join(base_dir, dataset, f"{dataset}_{mode}.txt")
         fake_images = mmcv.list_from_file(file)
         real_images = [convert_fake_name_to_real_name(x) for x in fake_images]
@@ -51,6 +55,40 @@ def get_images_paths_from_filename(base_dir, dataset):
         images_paths[mode] = {'real_images': real_images_paths,
                               'fake_images': fake_images_paths}
     return images_paths
+
+
+def get_images_paths_from_filename_for_label_me_datasets(
+        base_dir, dataset):
+    images_paths = {}
+    for mode in ['train', 'test', ]:
+        file = os.path.join(base_dir, f"{dataset}_all", f"{dataset}_{mode}.txt")
+        all_images = mmcv.list_from_file(file)
+        fake_images = [image for image in all_images
+                       if image.startswith('composites')]
+        real_images = [image for image in all_images
+                       if image.startswith('natural_photos')]
+        fake_images_paths = [
+            os.path.join(base_dir, f"{dataset}_all", x)
+            for x in fake_images]
+        real_images_paths = [
+            os.path.join(base_dir, f"{dataset}_all", x)
+            for x in real_images]
+        images_paths[mode] = {'real_images': real_images_paths,
+                              'fake_images': fake_images_paths}
+    return images_paths
+
+
+def get_images_paths_from_filename(base_dir, dataset):
+    if dataset in ['HCOCO', 'HAdobe5k', 'HFlickr', 'Hday2night',]:
+        return \
+            get_images_paths_from_filename_for_image_harmonization_datasets(
+                base_dir, dataset)
+    elif dataset == 'LabelMe':
+        return get_images_paths_from_filename_for_label_me_datasets(
+            base_dir, dataset)
+
+    else:
+        assert False, "dataset not supported"
 
 
 def main():

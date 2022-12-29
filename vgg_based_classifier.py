@@ -1,4 +1,8 @@
 import os
+
+from tqdm import tqdm
+
+
 import torch
 from math import ceil
 from PIL import Image
@@ -43,7 +47,7 @@ class FakesAndRealsDataset(torch.utils.data.Dataset):
 
 class Trainer:
     def __init__(self, train_images_paths, test_images_paths, artifacts_dir,
-                 epochs=-1):
+                 epochs=0):
         self.train_images_paths = train_images_paths
         self.test_images_paths = test_images_paths
 
@@ -61,7 +65,7 @@ class Trainer:
                                                 'tensorboard', )
         self.logger = get_logger(self.logfile_path)
         self.tb_writer = SummaryWriter(log_dir=self.tensorboard_log_dir)
-        if epochs == -1:
+        if epochs == 0:
             self.epochs = ceil(25 * 1e3 / self.batch_size / len(
                 self.train_dataloader) * 1.0)
         else:
@@ -119,7 +123,7 @@ class Trainer:
                                            shuffle=False)
 
     def train(self):
-        for batch in self.train_dataloader:
+        for batch in tqdm(self.train_dataloader):
             images, labels = batch['image'].cuda(), batch['label'].cuda()
             # zero the parameter gradients
             self.optimizer.zero_grad()
