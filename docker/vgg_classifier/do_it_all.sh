@@ -31,7 +31,15 @@ runai submit -g 1 -e DATASET='HCOCO' -e EPOCHS=50 \
   --large-shm
 
 runai submit -g 1 -e DATASET='LabelMe' -e EPOCHS=50 \
-  --name vgg-classifier-labelme \
+  --name vgg-classifier-labelme-small-train \
+  -e DATA_DIR='/storage/jevnisek/realism_datasets/' \
+  -i ajevnisek/vgg-classifier:latest --pvc=storage:/storage \
+  --large-shm
+
+sleep 10
+
+runai submit -g 1 -e DATASET='LabelMe' -e EPOCHS=500 \
+  --name vgg-classifier-labelme-longer-train \
   -e DATA_DIR='/storage/jevnisek/realism_datasets/' \
   -i ajevnisek/vgg-classifier:latest --pvc=storage:/storage \
   --large-shm

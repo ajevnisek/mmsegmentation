@@ -11,7 +11,8 @@ def parse_args():
                                      'based on VGG')
     parser.add_argument('--dataset',
                         choices=['HCOCO', 'HAdobe5k', 'HFlickr',
-                                 'Hday2night', 'IHD', 'LabelMe'],
+                                 'Hday2night', 'IHD', 'LabelMe_all',
+                                 'LabelMe_15categories'],
                         default='Hday2night',
                         help='dataset name.')
     parser.add_argument('--epochs',
@@ -61,17 +62,17 @@ def get_images_paths_from_filename_for_label_me_datasets(
         base_dir, dataset):
     images_paths = {}
     for mode in ['train', 'test', ]:
-        file = os.path.join(base_dir, f"{dataset}_all", f"{dataset}_{mode}.txt")
+        file = os.path.join(base_dir, dataset, f"{dataset}_{mode}.txt")
         all_images = mmcv.list_from_file(file)
         fake_images = [image for image in all_images
                        if image.startswith('composites')]
         real_images = [image for image in all_images
                        if image.startswith('natural_photos')]
         fake_images_paths = [
-            os.path.join(base_dir, f"{dataset}_all", x)
+            os.path.join(base_dir, dataset, x)
             for x in fake_images]
         real_images_paths = [
-            os.path.join(base_dir, f"{dataset}_all", x)
+            os.path.join(base_dir, dataset, x)
             for x in real_images]
         images_paths[mode] = {'real_images': real_images_paths,
                               'fake_images': fake_images_paths}
@@ -83,7 +84,7 @@ def get_images_paths_from_filename(base_dir, dataset):
         return \
             get_images_paths_from_filename_for_image_harmonization_datasets(
                 base_dir, dataset)
-    elif dataset == 'LabelMe':
+    elif dataset in ['LabelMe_all', 'LabelMe_15categories']:
         return get_images_paths_from_filename_for_label_me_datasets(
             base_dir, dataset)
 
