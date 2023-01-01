@@ -148,6 +148,7 @@ class GlobalAndLocalFeaturesDiscriminator:
         self.train_gradient_penalty += gradient_penalty.item()
 
     def train_one_epoch(self):
+        self.netD.train()
         for batch in tqdm(self.train_loader):
             self.set_input(batch)
             self.set_requires_grad(self.netD, True)  # enable backprop for D
@@ -176,6 +177,7 @@ class GlobalAndLocalFeaturesDiscriminator:
         self.logger.debug(message)
 
     def test_one_epoch(self, loader):
+        self.netD.eval()
         results = defaultdict(list)
         self.netD.eval()
         for batch in tqdm(loader):

@@ -84,7 +84,7 @@ class Trainer:
 
     def initialize_training(self):
         self.learning_rate = 1e-4  # 0.0001
-        self.learning_rate = 1e-3  # 0.0001
+        self.learning_rate = 1e-3  # 0.001
         # self.optimizer = torch.optim.SGD([
         #     {'params': [x for i, x in enumerate(self.model.parameters())
         #                 if i < 20]},
@@ -93,7 +93,7 @@ class Trainer:
         #      'lr': self.learning_rate * 10.0}],
         #     lr=self.learning_rate, momentum=0.9)
         self.optimizer = torch.optim.SGD(self.model.parameters(),
-            lr=self.learning_rate, momentum=0.9)
+                                         lr=self.learning_rate, momentum=0.9)
         self.batch_size = 128
         self.scheduler = torch.optim.lr_scheduler.StepLR(
             self.optimizer, step_size=int(1e4 / self.batch_size), gamma=0.1)
@@ -157,7 +157,7 @@ class Trainer:
             loss = self.criterion(outputs, labels)
             loss.backward()
             self.optimizer.step()
-            self.scheduler.step()
+        self.scheduler.step()
 
     def test(self, dataloader):
         self.model.eval()
@@ -276,7 +276,7 @@ class Trainer:
 
     def write_stats_for_mode(self, epoch, metrics, mode='train'):
         message = (f"[{epoch:04d} / {self.epochs:04d}] | "
-                   f"{mode} Loss: {metrics['mean_loss']:.4f} | "
+                   f"{mode} Loss: {metrics['mean_loss']:.6f} | "
                    f"{mode} Accuracy: {metrics['accuracy']:.2f} [%]")
         print(message)
         self.logger.debug(message)
