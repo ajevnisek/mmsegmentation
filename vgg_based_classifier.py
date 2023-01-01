@@ -104,16 +104,16 @@ class Trainer:
 
     def initialize_landone_dataset(self):
         import scipy
-        path_to_mat = os.path.join(LANDONE_DATA_ROOT, 'human_labels.mat')
+        path_to_mat = os.path.join(self.landone_root, 'human_labels.mat')
         human_labels = scipy.io.loadmat(path_to_mat)
 
         composite_images = [
-            os.path.join(LANDONE_DATA_ROOT, 'images', name[0][0])
+            os.path.join(self.landone_root, 'images', name[0][0])
             for name, label in
             zip(human_labels['imgList'], human_labels['labels'])
             if human_labels['label_strs'][0][label[0]][0] != 'natural photos']
         real_images = [
-            os.path.join(LANDONE_DATA_ROOT, 'images', name[0][0])
+            os.path.join(self.landone_root, 'images', name[0][0])
             for name, label in
             zip(human_labels['imgList'], human_labels['labels'])
             if human_labels['label_strs'][0][label[0]][0] == 'natural photos']

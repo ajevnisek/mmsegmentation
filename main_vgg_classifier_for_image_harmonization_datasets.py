@@ -5,6 +5,8 @@ import argparse
 from datetime import datetime
 from vgg_based_classifier import Trainer
 
+LANDONE_DATA_ROOT = '/mnt/data/data/realism_datasets/human_evaluation/'\
+                    'lalonde_and_efros_dataset'
 
 def parse_args():
     parser = argparse.ArgumentParser('Train Real/composite Images classifier '
@@ -30,6 +32,10 @@ def parse_args():
                             '/storage/jevnisek/realism_datasets/'
                         ])
     parser.add_argument('--target-dir', default='results/vgg_training')
+    parser.add_argument('--landone-root', default=LANDONE_DATA_ROOT,
+                        choices=[LANDONE_DATA_ROOT,
+                                 '/storage/jevnisek/realism_datasets/'
+                                 'human_evaluation/lalonde_and_efros_dataset/'])
     return parser.parse_args()
 
 
@@ -99,7 +105,8 @@ def main():
                               datetime.now().strftime("%Y_%m_%d__%H_%M_%S"))
     os.makedirs(target_dir, exist_ok=True)
     trainer = Trainer(images_paths['train'], images_paths['test'],
-                      target_dir, epochs=args.epochs)
+                      target_dir, epochs=args.epochs,
+                      landone_root=args.landone_root)
     trainer.run()
 
 
