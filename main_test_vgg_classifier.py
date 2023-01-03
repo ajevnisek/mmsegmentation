@@ -118,6 +118,7 @@ def main():
     import torch
     model_names = [x for x in os.listdir(args.models_root_path)
                    if x.startswith('best_model')]
+    model_names = [model_names[-1]]
     model_names.sort()
     data_dict = {}
     for epoch, name in enumerate(model_names):
@@ -132,10 +133,6 @@ def main():
     import json
     with open(os.path.join(args.models_root_path, 'auc_scores.json'), 'w') as f:
         json.dump(data_dict, f, indent=4)
-
-
-
-
 
 
 if __name__ == '__main__':
