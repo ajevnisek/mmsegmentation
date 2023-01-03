@@ -10,6 +10,7 @@ from PIL import Image
 import torchvision
 import torchvision.transforms as transforms
 
+from sklearn.metrics import roc_auc_score
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tools.discriminator_test_utils import get_logger
@@ -182,6 +183,40 @@ class Trainer:
         mean_loss = total_loss / total * 1.0
         test_metrics = {'accuracy': accuracy, 'mean_loss': mean_loss}
         return test_metrics
+
+    def test_with_auc(self, dataloader):
+        self.model.eval()
+        correct = 0
+        total = 0
+        total_loss = 0
+        # since we're not training, we don't need to calculate the gradients
+        # for our outputs
+        all_scores = []
+        all_labels = []
+        with torch.no_grad():
+            for data in tqdm(dataloader):
+                images, labels = data['image'].cuda(), data['label'].cuda()
+                # calculate outputs by running images through the network
+                outputs = self.model(images)
+                all_scores.append(outputs[..., 0].cpu().detach())
+                all_labels.append(labels.cpu().detach())
+                curr_loss = self.criterion(outputs, labels)
+                total_loss += curr_loss.item()
+                # the class with the highest energy is what we choose as
+                # prediction
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        accuracy = 100 * correct / total
+        mean_loss = total_loss / total * 1.0
+        auc = roc_auc_score(
+                            torch.cat(all_labels),
+                            torch.cat(all_scores))
+        auc = auc if auc > 0.5 else 1 - auc
+        test_metrics = {'accuracy': accuracy, 'mean_loss': mean_loss,
+                        'auc': 100.0 * auc}
+        return test_metrics
+
 
     def test_landone_dataset(self, epoch):
         from sklearn import svm
