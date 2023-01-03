@@ -85,17 +85,17 @@ class Trainer:
         return model
 
     def initialize_training(self):
-        self.learning_rate = 1e-4  # 0.0001
-        # self.learning_rate = 1e-3  # 0.001
-        self.optimizer = torch.optim.SGD([
-            {'params': [x for i, x in enumerate(self.model.parameters())
-                        if i < 20]},
-            {'params': [x for i, x in enumerate(self.model.parameters())
-                        if i >= 20],
-             'lr': self.learning_rate * 10.0}],
-            lr=self.learning_rate, momentum=0.9)
-        # self.optimizer = torch.optim.SGD(self.model.parameters(),
-        #                                  lr=self.learning_rate, momentum=0.9)
+        # self.learning_rate = 1e-4  # 0.0001
+        self.learning_rate = 1e-3  # 0.001
+        # self.optimizer = torch.optim.SGD([
+        #     {'params': [x for i, x in enumerate(self.model.parameters())
+        #                 if i < 20]},
+        #     {'params': [x for i, x in enumerate(self.model.parameters())
+        #                 if i >= 20],
+        #      'lr': self.learning_rate * 10.0}],
+        #     lr=self.learning_rate, momentum=0.9)
+        self.optimizer = torch.optim.SGD(self.model.parameters(),
+                                         lr=self.learning_rate, momentum=0.9)
         self.scheduler = torch.optim.lr_scheduler.StepLR(
             self.optimizer, step_size=int(1e4 / self.batch_size), gamma=0.1)
         self.criterion = torch.nn.CrossEntropyLoss()
