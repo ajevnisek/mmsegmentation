@@ -26,6 +26,7 @@ RUN ["/bin/bash", "-c", "pip install --no-cache-dir mmcv-full -f https://downloa
 
 # Install MMSegmentation
 ARG BUSTCACHE=1
+RUN echo "test"
 RUN git clone https://github.com/ajevnisek/mmsegmentation.git /mmsegmentation
 WORKDIR /mmsegmentation
 ENV FORCE_CUDA="1"

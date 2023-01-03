@@ -27,6 +27,11 @@ def parse_args():
                         type=int,
                         default=50,
                         help='Batch size, set to labelMe_all default: 50.')
+    parser.add_argument('--optimizer-type',
+                        type=str,
+                        default='SGD',
+                        choices=['SGD', 'Adam'],
+                        help='Which optimizer, default: SGD.')
     parser.add_argument('--data-dir',
                         default='../data/Image_Harmonization_Dataset/',
                         choices=[
@@ -118,7 +123,6 @@ def main():
     import torch
     model_names = [x for x in os.listdir(args.models_root_path)
                    if x.startswith('best_model')]
-    model_names = [model_names[-1]]
     model_names.sort()
     data_dict = {}
     for epoch, name in enumerate(model_names):
