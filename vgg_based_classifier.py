@@ -47,14 +47,15 @@ class FakesAndRealsDataset(torch.utils.data.Dataset):
 
 class Trainer:
     def __init__(self, train_images_paths, test_images_paths, artifacts_dir,
-                 epochs=0, batch_size=50, landone_root=LANDONE_DATA_ROOT):
+                 epochs=0, batch_size=50, landone_root=LANDONE_DATA_ROOT,
+                 optimizer_type='SGD'):
         self.train_images_paths = train_images_paths
         self.test_images_paths = test_images_paths
         self.landone_root = landone_root
         self.batch_size = batch_size
 
         self.model = self.initialize_network().cuda()
-        self.initialize_training()
+        self.initialize_training(optimizer_type=optimizer_type)
         self.initialize_datasets()
         self.artifacts_dir = artifacts_dir
         os.makedirs(os.path.join(self.artifacts_dir, 'text-logs'),
@@ -84,7 +85,7 @@ class Trainer:
                                               out_features=2, bias=True)
         return model
 
-    def initialize_training(self):
+    def initialize_training(self, optimizer_type='SGD'):
         # self.learning_rate = 1e-4  # 0.0001
         self.learning_rate = 1e-3  # 0.001
         # self.optimizer = torch.optim.SGD([
@@ -94,8 +95,15 @@ class Trainer:
         #                 if i >= 20],
         #      'lr': self.learning_rate * 10.0}],
         #     lr=self.learning_rate, momentum=0.9)
-        self.optimizer = torch.optim.SGD(self.model.parameters(),
-                                         lr=self.learning_rate, momentum=0.9)
+        if optimizer_type == 'SGD':
+            self.optimizer = torch.optim.SGD(self.model.parameters(),
+                                             lr=self.learning_rate,
+                                             momentum=0.9)
+        elif optimizer_type == 'Adam':
+            self.optimizer = torch.optim.SGD(self.model.parameters(),
+                                             lr=self.learning_rate)
+        else:
+            assert False, f"optimizer {optimizer_type} not supported."
         self.scheduler = torch.optim.lr_scheduler.StepLR(
             self.optimizer, step_size=int(1e4 / self.batch_size), gamma=0.1)
         self.criterion = torch.nn.CrossEntropyLoss()

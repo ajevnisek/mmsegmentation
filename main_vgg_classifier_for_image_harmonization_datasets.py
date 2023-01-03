@@ -27,6 +27,11 @@ def parse_args():
                         type=int,
                         default=50,
                         help='Batch size, set to labelMe_all default: 50.')
+    parser.add_argument('--optimizer-type',
+                        type=str,
+                        default='SGD',
+                        choices=['SGD', 'Adam'],
+                        help='Which optimizer, default: SGD.')
     parser.add_argument('--data-dir',
                         default='../data/Image_Harmonization_Dataset/',
                         choices=[
@@ -111,7 +116,8 @@ def main():
     trainer = Trainer(images_paths['train'], images_paths['test'],
                       target_dir, epochs=args.epochs,
                       batch_size=args.batch_size,
-                      landone_root=args.landone_root)
+                      landone_root=args.landone_root,
+                      optimizer_type=args.optimizer_type)
     trainer.run()
 
 
