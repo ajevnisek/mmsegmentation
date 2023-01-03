@@ -1,10 +1,25 @@
-docker image build -t ajevnisek/vgg-classifier:latest . --no-cache
+#docker image build -t ajevnisek/vgg-classifier:latest . --no-cache
+docker image build -t ajevnisek/vgg-classifier:latest .
 docker push  ajevnisek/vgg-classifier:latest
 
 
 runai submit -g 1 -e DATASET='HAdobe5k' -e EPOCHS=50 \
-  --name vgg-classifier-hadobe5k \
+  --name vgg-classifier-hadobe5k-large-bs -e BATCH_SIZE=512 \
   -e DATA_DIR='/storage/jevnisek/ImageHarmonizationDataset/' \
+  -i ajevnisek/vgg-classifier:latest --pvc=storage:/storage \
+  --large-shm
+
+
+runai submit -g 1 -e DATASET='HAdobe5k' -e EPOCHS=50 \
+  --name vgg-classifier-hadobe5k-small-bs -e BATCH_SIZE=50 \
+  -e DATA_DIR='/storage/jevnisek/ImageHarmonizationDataset/' \
+  -i ajevnisek/vgg-classifier:latest --pvc=storage:/storage \
+  --large-shm
+
+
+runai submit -g 1 -e DATASET='LabelMe_all' -e EPOCHS=50 \
+  --name vgg-classifier-labelme-small-bs -e BATCH_SIZE=50 \
+  -e DATA_DIR='/storage/jevnisek/realism_datasets/' \
   -i ajevnisek/vgg-classifier:latest --pvc=storage:/storage \
   --large-shm
 
@@ -30,7 +45,7 @@ runai submit -g 1 -e DATASET='HCOCO' -e EPOCHS=50 \
   -i ajevnisek/vgg-classifier:latest --pvc=storage:/storage \
   --large-shm
 
-runai submit -g 1 -e DATASET='LabelMe' -e EPOCHS=50 \
+runai submit -g 1 -e DATASET='LabelMe_all' -e EPOCHS=50 \
   --name vgg-classifier-labelme-small-train \
   -e DATA_DIR='/storage/jevnisek/realism_datasets/' \
   -i ajevnisek/vgg-classifier:latest --pvc=storage:/storage \
@@ -38,7 +53,7 @@ runai submit -g 1 -e DATASET='LabelMe' -e EPOCHS=50 \
 
 sleep 10
 
-runai submit -g 1 -e DATASET='LabelMe' -e EPOCHS=500 \
+runai submit -g 1 -e DATASET='LabelMe_all' -e EPOCHS=200 \
   --name vgg-classifier-labelme-longer-train \
   -e DATA_DIR='/storage/jevnisek/realism_datasets/' \
   -i ajevnisek/vgg-classifier:latest --pvc=storage:/storage \

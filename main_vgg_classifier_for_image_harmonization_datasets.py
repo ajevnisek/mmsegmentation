@@ -23,6 +23,10 @@ def parse_args():
                         help='Number of train epochs. Default is -1 which '
                              'means that the number of epochs will be a bit '
                              'higher than 25K iterations.')
+    parser.add_argument('--batch-size',
+                        type=int,
+                        default=50,
+                        help='Batch size, set to labelMe_all default: 50.')
     parser.add_argument('--data-dir',
                         default='../data/Image_Harmonization_Dataset/',
                         choices=[
@@ -106,6 +110,7 @@ def main():
     os.makedirs(target_dir, exist_ok=True)
     trainer = Trainer(images_paths['train'], images_paths['test'],
                       target_dir, epochs=args.epochs,
+                      batch_size=args.batch_size,
                       landone_root=args.landone_root)
     trainer.run()
 

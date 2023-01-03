@@ -46,10 +46,11 @@ class FakesAndRealsDataset(torch.utils.data.Dataset):
 
 class Trainer:
     def __init__(self, train_images_paths, test_images_paths, artifacts_dir,
-                 epochs=0, landone_root=LANDONE_DATA_ROOT):
+                 epochs=0, batch_size=50, landone_root=LANDONE_DATA_ROOT):
         self.train_images_paths = train_images_paths
         self.test_images_paths = test_images_paths
         self.landone_root = landone_root
+        self.batch_size = batch_size
 
         self.model = self.initialize_network().cuda()
         self.initialize_training()
@@ -84,17 +85,16 @@ class Trainer:
 
     def initialize_training(self):
         self.learning_rate = 1e-4  # 0.0001
-        self.learning_rate = 1e-3  # 0.001
-        # self.optimizer = torch.optim.SGD([
-        #     {'params': [x for i, x in enumerate(self.model.parameters())
-        #                 if i < 20]},
-        #     {'params': [x for i, x in enumerate(self.model.parameters())
-        #                 if i >= 20],
-        #      'lr': self.learning_rate * 10.0}],
-        #     lr=self.learning_rate, momentum=0.9)
-        self.optimizer = torch.optim.SGD(self.model.parameters(),
-                                         lr=self.learning_rate, momentum=0.9)
-        self.batch_size = 128
+        # self.learning_rate = 1e-3  # 0.001
+        self.optimizer = torch.optim.SGD([
+            {'params': [x for i, x in enumerate(self.model.parameters())
+                        if i < 20]},
+            {'params': [x for i, x in enumerate(self.model.parameters())
+                        if i >= 20],
+             'lr': self.learning_rate * 10.0}],
+            lr=self.learning_rate, momentum=0.9)
+        # self.optimizer = torch.optim.SGD(self.model.parameters(),
+        #                                  lr=self.learning_rate, momentum=0.9)
         self.scheduler = torch.optim.lr_scheduler.StepLR(
             self.optimizer, step_size=int(1e4 / self.batch_size), gamma=0.1)
         self.criterion = torch.nn.CrossEntropyLoss()
