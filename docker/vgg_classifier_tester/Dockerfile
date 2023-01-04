@@ -39,6 +39,7 @@ RUN pip install openmim && mim install mmcv-full==1.6.0
 
 WORKDIR /mmsegmentation/
 RUN conda install pytorch==1.12.0 torchvision==0.13.0 torchaudio==0.12.0 cudatoolkit=11.3 -c pytorch
+RUN echo 'tester!'
 
 ## clone repo and cd to a directory where the main is:
 COPY run_python_script.sh .

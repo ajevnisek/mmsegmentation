@@ -1,4 +1,5 @@
 import os
+import json
 import mmcv
 
 import argparse
@@ -113,6 +114,8 @@ def main():
     target_dir = os.path.join(args.target_dir,
                               datetime.now().strftime("%Y_%m_%d__%H_%M_%S"))
     os.makedirs(target_dir, exist_ok=True)
+    with open(os.path.join(target_dir, 'args.json'), 'w') as f:
+        json.dump(args, f, indent=4)
     trainer = Trainer(images_paths['train'], images_paths['test'],
                       target_dir, epochs=args.epochs,
                       batch_size=args.batch_size,

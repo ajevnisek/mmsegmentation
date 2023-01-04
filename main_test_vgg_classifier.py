@@ -1,4 +1,5 @@
 import os
+import json
 import mmcv
 
 import argparse
@@ -134,7 +135,6 @@ def main():
         print(test_metrics)
         print("~" * 10)
         data_dict[epoch] = test_metrics
-    import json
     with open(os.path.join(args.models_root_path, 'auc_scores.json'), 'w') as f:
         json.dump(data_dict, f, indent=4)
 

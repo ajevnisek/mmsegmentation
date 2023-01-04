@@ -100,7 +100,7 @@ class Trainer:
                                              lr=self.learning_rate,
                                              momentum=0.9)
         elif optimizer_type == 'Adam':
-            self.optimizer = torch.optim.SGD(self.model.parameters(),
+            self.optimizer = torch.optim.Adam(self.model.parameters(),
                                              lr=self.learning_rate)
         else:
             assert False, f"optimizer {optimizer_type} not supported."
@@ -225,7 +225,6 @@ class Trainer:
                         'auc': 100.0 * auc}
         return test_metrics
 
-
     def test_landone_dataset(self, epoch):
         from sklearn import svm
         from sklearn.metrics import roc_auc_score
@@ -330,6 +329,8 @@ class Trainer:
         if mode == 'test':
             self.tb_writer.add_scalar(f'AuC/{mode}/landone-auc',
                                       metrics['landone_auc'], epoch)
+            self.tb_writer.add_scalar(f'AuC/{mode}/test-auc',
+                                      metrics['auc'], epoch)
 
     def run(self):
         best_train_accuracy = 0
@@ -337,7 +338,7 @@ class Trainer:
             self.train()
             train_metrics = self.test(self.train_dataloader)
             self.write_stats_for_mode(epoch, train_metrics, mode='train')
-            test_metrics = self.test(self.test_dataloader)
+            test_metrics = self.test_with_auc(self.test_dataloader)
             landone_auc = float(self.test_landone_dataset(epoch))
             test_metrics['landone_auc'] = landone_auc
             self.write_stats_for_mode(epoch, test_metrics, mode='test')
