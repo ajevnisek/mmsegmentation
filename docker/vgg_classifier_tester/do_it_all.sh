@@ -39,3 +39,10 @@ runai submit -g 1 -e DATASET='HAdobe5k' -e EPOCHS=1 \
   -i ajevnisek/vgg-classifier-tester:latest --pvc=storage:/storage \
   --large-shm
 
+runai submit -g 1 -e DATASET='LabelMe_all' -e EPOCHS=1 \
+  --name vgg-classifier-tester-label-me-my-machine -e BATCH_SIZE=256 \
+  -e DATA_DIR='/storage/jevnisek/realism_datasets/' \
+  -e MODELS_ROOT_PATH='/storage/jevnisek/vgg_classifier/LabelMe_all/2023_01_01__19_26_17' \
+  -i ajevnisek/vgg-classifier-tester:latest --pvc=storage:/storage \
+  --large-shm
+

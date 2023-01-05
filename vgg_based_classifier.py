@@ -101,7 +101,7 @@ class Trainer:
                                              momentum=0.9)
         elif optimizer_type == 'Adam':
             self.optimizer = torch.optim.Adam(self.model.parameters(),
-                                             lr=self.learning_rate)
+                                              lr=self.learning_rate)
         else:
             assert False, f"optimizer {optimizer_type} not supported."
         self.scheduler = torch.optim.lr_scheduler.StepLR(
@@ -155,6 +155,11 @@ class Trainer:
                                            shuffle=False)
 
     def train(self):
+        correct = 0
+        total = 0
+        total_loss = 0
+        all_scores = []
+        all_labels = []
         self.model.train()
         for batch in tqdm(self.train_dataloader):
             images, labels = batch['image'].cuda(), batch['label'].cuda()
@@ -166,7 +171,23 @@ class Trainer:
             loss = self.criterion(outputs, labels)
             loss.backward()
             self.optimizer.step()
+            # track metrics
+            all_scores.append(outputs[..., 0].cpu().detach())
+            all_labels.append(labels.cpu().detach())
+            total_loss += loss.item()
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
         self.scheduler.step()
+        accuracy = 100 * correct / total
+        mean_loss = total_loss / total * 1.0
+        auc = roc_auc_score(
+            torch.cat(all_labels),
+            torch.cat(all_scores))
+        auc = auc if auc > 0.5 else 1 - auc
+        train_metrics = {'accuracy': accuracy, 'mean_loss': mean_loss,
+                         'auc': auc * 100.0}
+        return train_metrics
 
     def test(self, dataloader):
         self.model.eval()
@@ -319,28 +340,24 @@ class Trainer:
     def write_stats_for_mode(self, epoch, metrics, mode='train'):
         message = (f"[{epoch:04d} / {self.epochs:04d}] | "
                    f"{mode} Loss: {metrics['mean_loss']:.6f} | "
+                   f"{mode} AuC: {metrics['auc']:.2f} [%] | "
                    f"{mode} Accuracy: {metrics['accuracy']:.2f} [%]")
         print(message)
         self.logger.debug(message)
         self.tb_writer.add_scalar(f'Loss/{mode}/loss', metrics['mean_loss'],
                                   epoch)
+        self.tb_writer.add_scalar(f'AuC/{mode}/auc',
+                                  metrics['auc'], epoch)
         self.tb_writer.add_scalar(f'Accuracy/{mode}/accuracy',
                                   metrics['accuracy'], epoch)
         if mode == 'test':
             self.tb_writer.add_scalar(f'AuC/{mode}/landone-auc',
                                       metrics['landone_auc'], epoch)
-            self.tb_writer.add_scalar(f'AuC/{mode}/test-auc',
-                                      metrics['auc'], epoch)
-            message = (f"[{epoch:04d} / {self.epochs:04d}] | "
-                       f"{mode} AuC: {metrics['auc']:.2f} [%] ")
-            print(message)
-            self.logger.debug(message)
 
     def run(self):
         best_train_accuracy = 0
         for epoch in range(1, 1 + self.epochs):
-            self.train()
-            train_metrics = self.test(self.train_dataloader)
+            train_metrics = self.train()
             self.write_stats_for_mode(epoch, train_metrics, mode='train')
             test_metrics = self.test_with_auc(self.test_dataloader)
             landone_auc = float(self.test_landone_dataset(epoch))
