@@ -331,6 +331,10 @@ class Trainer:
                                       metrics['landone_auc'], epoch)
             self.tb_writer.add_scalar(f'AuC/{mode}/test-auc',
                                       metrics['auc'], epoch)
+            message = (f"[{epoch:04d} / {self.epochs:04d}] | "
+                       f"{mode} AuC: {metrics['auc']:.2f} [%] ")
+            print(message)
+            self.logger.debug(message)
 
     def run(self):
         best_train_accuracy = 0
