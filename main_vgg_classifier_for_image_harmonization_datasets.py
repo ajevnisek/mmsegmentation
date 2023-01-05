@@ -120,7 +120,8 @@ def main():
                       target_dir, epochs=args.epochs,
                       batch_size=args.batch_size,
                       landone_root=args.landone_root,
-                      optimizer_type=args.optimizer_type)
+                      optimizer_type=args.optimizer_type,
+                      run_landone_evaluation=args.dataset == 'LabelMe_all')
     trainer.run()
 
 

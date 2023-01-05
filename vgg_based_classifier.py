@@ -48,9 +48,10 @@ class FakesAndRealsDataset(torch.utils.data.Dataset):
 class Trainer:
     def __init__(self, train_images_paths, test_images_paths, artifacts_dir,
                  epochs=0, batch_size=50, landone_root=LANDONE_DATA_ROOT,
-                 optimizer_type='SGD'):
+                 optimizer_type='SGD', run_landone_evaluation=False):
         self.train_images_paths = train_images_paths
         self.test_images_paths = test_images_paths
+        self.run_landone_evaluation = run_landone_evaluation
         self.landone_root = landone_root
         self.batch_size = batch_size
 
@@ -360,8 +361,9 @@ class Trainer:
             train_metrics = self.train()
             self.write_stats_for_mode(epoch, train_metrics, mode='train')
             test_metrics = self.test_with_auc(self.test_dataloader)
-            landone_auc = float(self.test_landone_dataset(epoch))
-            test_metrics['landone_auc'] = landone_auc
+            if self.run_landone_evaluation:
+                landone_auc = float(self.test_landone_dataset(epoch))
+                test_metrics['landone_auc'] = landone_auc
             self.write_stats_for_mode(epoch, test_metrics, mode='test')
             if train_metrics['accuracy'] > best_train_accuracy:
                 self.cache_model_and_stats(epoch, train_metrics, test_metrics)
