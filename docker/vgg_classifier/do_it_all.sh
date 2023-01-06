@@ -1,5 +1,5 @@
-#docker image build -t ajevnisek/vgg-classifier:latest . --no-cache
-docker image build -t ajevnisek/vgg-classifier:latest .
+docker image build -t ajevnisek/vgg-classifier:latest . --no-cache
+#docker image build -t ajevnisek/vgg-classifier:latest .
 docker push  ajevnisek/vgg-classifier:latest
 
 

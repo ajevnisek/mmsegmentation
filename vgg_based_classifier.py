@@ -351,7 +351,7 @@ class Trainer:
                                   metrics['auc'], epoch)
         self.tb_writer.add_scalar(f'Accuracy/{mode}/accuracy',
                                   metrics['accuracy'], epoch)
-        if mode == 'test':
+        if mode == 'test' and self.run_landone_evaluation:
             self.tb_writer.add_scalar(f'AuC/{mode}/landone-auc',
                                       metrics['landone_auc'], epoch)
 
