@@ -121,7 +121,7 @@ class LitModel(pl.LightningModule):
                  prog_bar=True, logger=True)
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=1e-3)
+        return torch.optim.Adam(self.model.parameters(), lr=1e-3)
 
 
 args = parse_args()
@@ -145,7 +145,7 @@ test_set = FakesAndRealsDataset(
     torchvision.models.VGG16_Weights.IMAGENET1K_V1.transforms()
 )
 
-train_loader = DataLoader(train_set, batch_size=64)
+train_loader = DataLoader(train_set, batch_size=args.batch_size)
 test_dataloader = DataLoader(test_set, batch_size=128)
 checkpoint_callback = ModelCheckpoint(
     dirpath=target_dir,
