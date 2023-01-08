@@ -148,12 +148,12 @@ test_set = FakesAndRealsDataset(
 train_loader = DataLoader(train_set, batch_size=64)
 test_dataloader = DataLoader(test_set, batch_size=128)
 checkpoint_callback = ModelCheckpoint(
-    dirpath=args.target_dir,
+    dirpath=target_dir,
     filename="checkpoint-{epoch:02d}-{train_loss:.2f}",
     save_top_k=-1, every_n_epochs=1, save_last=True
 )
 trainer = pl.Trainer(accelerator='gpu',
-                     max_epochs=15, check_val_every_n_epoch=1,
+                     max_epochs=args.epochs, check_val_every_n_epoch=1,
                      enable_checkpointing=True, callbacks=[checkpoint_callback])
 model = LitModel()
 

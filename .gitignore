@@ -134,3 +134,5 @@ aucs_*.json
 gaussian_*.png
 /pl_checkpoints/
 /lightning_logs/
+/MNIST/
+/pl_runs/

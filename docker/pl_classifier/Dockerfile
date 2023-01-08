@@ -25,12 +25,13 @@ ARG MMCV
 RUN ["/bin/bash", "-c", "pip install --no-cache-dir mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu${CUDA//./}/torch${PYTORCH}/index.html"]
 
 # Install MMSegmentation
-RUN git clone https://github.com/open-mmlab/mmsegmentation.git /mmsegmentation
+RUN git clone https://github.com/ajevnisek/mmsegmentation.git /mmsegmentation
 WORKDIR /mmsegmentation
 ENV FORCE_CUDA="1"
 RUN pip install -r requirements.txt
 RUN pip install --no-cache-dir -e .
 RUN pip install pytorch-lightning
-
+RUN git pull
+RUN echo "test"
 COPY run_python_script.sh .
 ENTRYPOINT ["bash", "run_python_script.sh"]

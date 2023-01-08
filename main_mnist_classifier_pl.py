@@ -58,6 +58,8 @@ test_dataloader = DataLoader(MNIST(os.getcwd(), train=False, download=True,
 checkpoint_callback = ModelCheckpoint(
     dirpath="pl_checkpoints/",
     filename="sample-mnist-{epoch:02d}-{train_loss:.2f}",
+    save_top_k=-1,
+    every_n_epochs=1, save_last=True
 )
 trainer = pl.Trainer(accelerator='gpu',
                      max_epochs=20, check_val_every_n_epoch=2,
