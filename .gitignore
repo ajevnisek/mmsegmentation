@@ -132,3 +132,5 @@ mask_prediction_on_harmonizer_output_results
 mask_prediction_on_real_images_results
 aucs_*.json
 gaussian_*.png
+/pl_checkpoints/
+/lightning_logs/
