@@ -1,3 +1,5 @@
+sleep 360
+
 # create results directories:
 mkdir -p /storage/jevnisek/pl_real_fake_classifier/${DATASET}
 

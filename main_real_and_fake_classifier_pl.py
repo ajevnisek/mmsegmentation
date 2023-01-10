@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import MNIST
 from torchmetrics.functional import accuracy
 from pytorch_lightning.callbacks import ModelCheckpoint
-from tools.real_and_composite_images_dataloaders import get_images_paths_from_filename
+from tools.real_and_composite_images_dataloaders import create_dataloaders
 
 
 def parse_args():
@@ -52,30 +52,6 @@ def parse_args():
                         ])
     parser.add_argument('--target-dir', default='results/vgg_training')
     return parser.parse_args()
-
-
-class FakesAndRealsDataset(torch.utils.data.Dataset):
-    def __init__(self, real_images_paths, fake_images_paths, transform):
-        self.real_images_paths = real_images_paths
-        self.fake_images_paths = fake_images_paths
-        self.transform = transform
-
-    def __getitem__(self, item):
-        if item < len(self.real_images_paths):
-            image_path = self.real_images_paths[item]
-            label = 0
-        else:
-            image_path = self.fake_images_paths[item - len(self.real_images_paths)]
-            label = 1
-        image = Image.open(image_path)
-        image_tensor = self.transform(image)
-        sample = {'path': image_path,
-                  'label': label,
-                  'image': image_tensor}
-        return sample
-
-    def __len__(self):
-        return len(self.real_images_paths) + len(self.fake_images_paths)
 
 
 class LitModel(pl.LightningModule):
@@ -121,32 +97,28 @@ class LitModel(pl.LightningModule):
                  prog_bar=True, logger=True)
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.model.parameters(), lr=1e-3)
+        optimizer = torch.optim.SGD(self.parameters(),
+                                    lr=self.hparams.learning_rate)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,
+                                                               T_max=10)
+        return [optimizer], [scheduler]
 
 
 args = parse_args()
 
 
-images_paths = get_images_paths_from_filename(args.data_dir, args.dataset)
 target_dir = os.path.join(args.target_dir,
                           datetime.now().strftime("%Y_%m_%d__%H_%M_%S"))
 os.makedirs(target_dir, exist_ok=True)
 with open(os.path.join(target_dir, 'args.json'), 'w') as f:
     json.dump(vars(args), f, indent=4)
 
-train_set = FakesAndRealsDataset(
-    images_paths['train']['real_images'],
-    images_paths['train']['fake_images'],
-    torchvision.models.VGG16_Weights.IMAGENET1K_V1.transforms()
-)
-test_set = FakesAndRealsDataset(
-    images_paths['test']['real_images'],
-    images_paths['test']['fake_images'],
-    torchvision.models.VGG16_Weights.IMAGENET1K_V1.transforms()
-)
+train_loader, test_dataloader = create_dataloaders(
+    data_dir=args.data_dir,
+    dataset=args.dataset,
+    train_batch_size=args.batch_size,
+    test_batch_size=128, num_workers=10)
 
-train_loader = DataLoader(train_set, batch_size=args.batch_size)
-test_dataloader = DataLoader(test_set, batch_size=128)
 checkpoint_callback = ModelCheckpoint(
     dirpath=target_dir,
     filename="checkpoint-{epoch:02d}-{train_loss:.2f}",

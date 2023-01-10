@@ -1,5 +1,69 @@
 import os
 import mmcv
+import torchvision
+
+from PIL import Image
+from torch.utils.data import Dataset, DataLoader
+
+
+class FakesAndRealsDataset(Dataset):
+    def __init__(self, real_images_paths, fake_images_paths, transform):
+        self.real_images_paths = real_images_paths
+        self.fake_images_paths = fake_images_paths
+        self.transform = transform
+
+    def __getitem__(self, item):
+        if item < len(self.real_images_paths):
+            image_path = self.real_images_paths[item]
+            label = 0
+        else:
+            image_path = self.fake_images_paths[item - len(self.real_images_paths)]
+            label = 1
+        image = Image.open(image_path)
+        image_tensor = self.transform(image)
+        sample = {'path': image_path,
+                  'label': label,
+                  'image': image_tensor}
+        return sample
+
+    def __len__(self):
+        return len(self.real_images_paths) + len(self.fake_images_paths)
+
+
+def create_datasets(data_dir='../data/Image_Harmonization_Dataset',
+                    dataset='HAdobe5k', model_name='vgg11'):
+    images_paths = get_images_paths_from_filename(data_dir, dataset)
+    if model_name == 'vgg11':
+        transforms = torchvision.models.VGG16_Weights.IMAGENET1K_V1.transforms()
+    elif model_name == 'resnet18':
+        transforms = torchvision.models.ResNet18_Weights.IMAGENET1K_V1.transforms()
+    else:
+        assert False, f"model name {model_name} not supported"
+
+    train_set = FakesAndRealsDataset(
+        images_paths['train']['real_images'],
+        images_paths['train']['fake_images'],
+        transforms
+    )
+    test_set = FakesAndRealsDataset(
+        images_paths['test']['real_images'],
+        images_paths['test']['fake_images'],
+        transforms
+    )
+    return train_set, test_set
+
+
+def create_dataloaders(data_dir='../data/Image_Harmonization_Dataset',
+                       dataset='HAdobe5k',
+                       model_name='vgg11',
+                       train_batch_size=50,
+                       test_batch_size=128, num_workers=10):
+    train_set, test_set = create_datasets(data_dir, dataset, model_name)
+    train_loader = DataLoader(train_set, batch_size=train_batch_size,
+                              num_workers=num_workers)
+    test_dataloader = DataLoader(test_set, batch_size=test_batch_size,
+                                 num_workers=num_workers)
+    return train_loader, test_dataloader
 
 
 def convert_fake_name_to_real_name(composite_image_name,
